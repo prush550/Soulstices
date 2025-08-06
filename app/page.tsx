@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Heart, Brain, Users, ArrowRight, Mail, Phone, MapPin } from "lucide-react"
+import { Heart, Brain, Users, ArrowRight, Mail, Phone } from "lucide-react"
 import Link from "next/link"
 import { SoulsticesLogo } from "@/components/soulstices-logo"
 
@@ -21,7 +21,7 @@ export default function SoulsticesLanding() {
             <Link href="#services" className="text-slate-300 hover:text-teal-400 transition-colors">
               Services
             </Link>
-            <Link href="#about" className="text-slate-300 hover:text-teal-400 transition-colors">
+            <Link href="/about" className="text-slate-300 hover:text-teal-400 transition-colors">
               About
             </Link>
             <Link href="#contact" className="text-slate-300 hover:text-teal-400 transition-colors">
@@ -320,7 +320,7 @@ export default function SoulsticesLanding() {
               <h4 className="font-semibold text-slate-200">Company</h4>
               <ul className="space-y-2 text-slate-400">
                 <li>
-                  <Link href="#" className="hover:text-teal-400 transition-colors">
+                  <Link href="/about" className="hover:text-teal-400 transition-colors">
                     About Us
                   </Link>
                 </li>
@@ -346,16 +346,13 @@ export default function SoulsticesLanding() {
               <ul className="space-y-2 text-slate-400">
                 <li className="flex items-center space-x-2">
                   <Mail className="w-4 h-4" />
-                  <span>hello@soulstices.com</span>
+                  <span>mail.soulstices@gmail.com</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <Phone className="w-4 h-4" />
-                  <span>+1 (555) 123-4567</span>
+                  <span>+91-8619987836</span>
                 </li>
-                <li className="flex items-center space-x-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>San Francisco, CA</span>
-                </li>
+                <li className="flex items-center space-x-2"></li>
               </ul>
             </div>
           </div>
