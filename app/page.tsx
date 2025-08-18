@@ -346,7 +346,7 @@ export default function SoulsticesLanding() {
               <ul className="space-y-2 text-slate-400">
                 <li className="flex items-center space-x-2">
                   <Mail className="w-4 h-4" />
-                  <span>Coming Soon...</span>
+                  <span>mail.soulstices@gmail.com</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <Phone className="w-4 h-4" />
