@@ -1,7 +1,7 @@
 "use client"
 
-import Link from "next/link"
-import { SoulsticesLogo } from "@/components/soulstices-logo"
+import type React from "react"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,33 +9,112 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2 } from "lucide-react"
+import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import Link from "next/link"
+import { SoulsticesLogo } from "@/components/soulstices-logo"
 import { submitAboutForm } from "./actions"
 import { useState, useTransition } from "react"
 
-const AboutPage = () => {
+export default function AboutPage() {
   const [isPending, startTransition] = useTransition()
+  const [formState, setFormState] = useState<{
+    success?: boolean
+    message?: string
+    data?: any
+  } | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    message: "",
-    service: "",
+    city: "",
+    happiness: "",
+    expectations: "",
   })
 
-  const handleChange = (event) => {
-    const { name, value } = event.target
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }))
-  }
+  const randomNotes = [
+    "Sometimes the best conversations happen over chai and contemplation (or coffee, if you're into that). ☕",
+    "The wound is the place where the light enters you - Rumi 🌧️",
+    "Life is a long preparation for something that never happens - Yeats (probably) 🚶‍♀️",
+    "It is not death that a man should fear, but never beginning to live - Marcus Aurelius 💭",
+    "The more you are motivated by love, the more fearless and free your action will be - Dalai Lama 🤝",
+    "Loneliness is the human condition - Janet Fitch 🛤️",
+    "Some of the deepest healing happens in the most ordinary moments. ✨",
+    "Man is the only creature who refuses to be what he is - Albert Camus",
+    "We are all in the gutter, but some of us are looking at the stars - Oscar Wilde",
+    "What hurts us is what heals us - Paulo Coelho",
+    "Nothing in life is to be feared, it is only to be understood - Marie Curie",
+    "A man is not idle because he is absorbed in thought. There is a visible labor and there is an invisible labor - Victor Hugo",
+    "You cannot protect yourself from sadness without protecting yourself from happiness - Jonathan Safran Foe",
+    "The world breaks everyone and afterward many are strong at the broken places - Ernest Hemingway",
+    "Existence is suffering - Buddha (paraphrase, obviously)",
+    "He alone sees truly who sees the Lord the same in every creature... seeing the same Lord everywhere, he does not harm himself or others - Gita (the actual book)",
+    "This moment is all there is - Thích Nhất Hạnh",
+    "There is more to life than increasing its speed - Mahatma Gandhi",
+    "Freedom is not worth having if it does not include the freedom to make mistakes - Mahatma Gandhi",
+    "Happiness is when what you think, what you say, and what you do are in harmony - Mahatma Gandhi"
+  ]
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    startTransition(() => {
-      submitAboutForm(formData)
+  const randomNote = randomNotes[Math.floor(Math.random() * randomNotes.length)]
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    startTransition(async () => {
+      const result = await submitAboutForm(formData)
+      setFormState(result)
+
+      if (result.success) {
+        // Reset form on success
+        setFormData({
+          name: "",
+          email: "",
+          city: "",
+          happiness: "",
+          expectations: "",
+        })
+      }
     })
   }
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+    // Clear any previous form state when user starts typing
+    if (formState) {
+      setFormState(null)
+    }
+  }
+
+return (
+<script>
+  const form = document.querySelector("form");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+
+    try {
+      const response = await fetch("https://script.google.com/macros/s/AKfycbxnxrNwV2Ds_25g_a48_MngWQZcDt3fi_2lcSTGIRgC0TUI83qSw8rdUIpS6HbmpWn_/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      alert("Thank you! Your response has been submitted.");
+      form.reset();
+    } catch (error) {
+      console.error("Submission failed:", error);
+      alert("Oops! Something went wrong. Please try again.");
+    }
+  });
+</script>
+)
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
@@ -64,54 +143,338 @@ const AboutPage = () => {
           </nav>
         </div>
       </header>
-      {/* Form */}
-      <div className="container mx-auto px-4 lg:px-6 mt-10">
-        <Card>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
+
+      {/* Hero Image Section */}
+      <section className="relative h-[70vh] overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="/placeholder.svg?height=800&width=1200"
+            alt="Person contemplating by the window during rain"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+        </div>
+        <div className="relative z-10 h-full flex items-end">
+          <div className="container mx-auto px-4 lg:px-6 pb-16">
+            <div className="max-w-2xl">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                Sometimes the best ideas come during{" "}
+                <span className="bg-gradient-to-r from-teal-400 to-purple-400 bg-clip-text text-transparent">
+                  quiet moments
+                </span>
+              </h1>
+              <p className="text-xl text-slate-300">
+                Like watching the rain while sipping chai, wondering how we can make a difference.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Story Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="space-y-8">
+              <div className="text-center space-y-4 mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold">Why We Exist</h2>
+                <p className="text-slate-400 text-lg">The story of three friends with different dreams</p>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="message">Message</Label>
-                <Textarea id="message" name="message" value={formData.message} onChange={handleChange} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="service">Service</Label>
-                <Select id="service" name="service" value={formData.service} onChange={handleChange} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a service" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="design">Design</SelectItem>
-                    <SelectItem value="development">Development</SelectItem>
-                    <SelectItem value="consulting">Consulting</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                type="submit"
-                className="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-0"
-              >
-                Submit
-              </Button>
-              {isPending && (
-                <Alert className="mt-4">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <AlertDescription>Submitting form...</AlertDescription>
-                </Alert>
-              )}
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardContent className="p-8 md:p-12">
+                  <div className="prose prose-lg prose-invert max-w-none">
+                    <p className="text-slate-300 leading-relaxed text-lg mb-6">
+                      We are a group of mutual friends who, despite sharing different goals and being driven in separate
+                      directions, decided to work on our skills through a joint medium during our individual journeys.
+                    </p>
+
+                    <div className="grid md:grid-cols-3 gap-8 my-12">
+                      <div className="text-center space-y-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center mx-auto">
+                          <span className="text-2xl">🚀</span>
+                        </div>
+                        <h3 className="text-xl font-semibold text-teal-400">The Entrepreneur</h3>
+                        <p className="text-slate-400 text-sm">
+                          Dreaming of building something meaningful that could impact lives and create lasting change.
+                        </p>
+                      </div>
+
+                      <div className="text-center space-y-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto">
+                          <span className="text-2xl">✊</span>
+                        </div>
+                        <h3 className="text-xl font-semibold text-purple-400">The Social Activist</h3>
+                        <p className="text-slate-400 text-sm">
+                          Passionate about social justice and creating platforms for voices that need to be heard.
+                        </p>
+                      </div>
+
+                      <div className="text-center space-y-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-full flex items-center justify-center mx-auto">
+                          <span className="text-2xl">💻</span>
+                        </div>
+                        <h3 className="text-xl font-semibold text-pink-400">The Technologist</h3>
+                        <p className="text-slate-400 text-sm">
+                          Eager to experiment with technical skills and explore how technology can serve humanity.
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="text-slate-300 leading-relaxed text-lg mb-6">
+                      What started as casual conversations over coffee about our individual aspirations slowly evolved
+                      into something bigger. We realized that our diverse perspectives and skills could complement each
+                      other in ways we hadn't imagined.
+                    </p>
+
+                    <p className="text-slate-300 leading-relaxed text-lg">
+                      Soulstices became our joint medium - a space where entrepreneurial vision meets social
+                      consciousness and technical innovation. It's where we learned that sometimes the most meaningful
+                      projects emerge not from individual brilliance, but from the beautiful intersection of different
+                      dreams working toward a common purpose.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tell Us About Yourself Form */}
+      <section className="py-20 bg-slate-800/30">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center space-y-4 mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold">Tell Us About Yourself</h2>
+              <p className="text-slate-400 text-lg">We'd love to know who you are and what brings you here</p>
+            </div>
+
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-8">
+                {formState && (
+                  <Alert
+                    className={`mb-6 ${formState.success ? "border-green-500 bg-green-500/10" : "border-red-500 bg-red-500/10"}`}
+                  >
+                    {formState.success ? (
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                    )}
+                    <AlertDescription className={formState.success ? "text-green-200" : "text-red-200"}>
+                      {formState.message}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-slate-200">
+                        Name *
+                      </Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        placeholder="What should we call you?"
+                        className="bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-slate-200">
+                        Email *
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        placeholder="your@email.com"
+                        className="bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="city" className="text-slate-200">
+                        City
+                      </Label>
+                      <Input
+                        id="city"
+                        value={formData.city}
+                        onChange={(e) => handleInputChange("city", e.target.value)}
+                        placeholder="Which city are you from?"
+                        className="bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="happiness" className="text-slate-200">
+                        Are You Happy?
+                      </Label>
+                      <Select
+                        value={formData.happiness}
+                        onValueChange={(value) => handleInputChange("happiness", value)}
+                      >
+                        <SelectTrigger className="bg-slate-700 border-slate-600 text-slate-100">
+                          <SelectValue placeholder="Honestly..." />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-700 border-slate-600">
+                          <SelectItem value="very-happy" className="text-slate-100">
+                            Very happy! 😊
+                          </SelectItem>
+                          <SelectItem value="mostly-happy" className="text-slate-100">
+                            Mostly happy 🙂
+                          </SelectItem>
+                          <SelectItem value="neutral" className="text-slate-100">
+                            It's complicated 😐
+                          </SelectItem>
+                          <SelectItem value="struggling" className="text-slate-100">
+                            Struggling a bit 😔
+                          </SelectItem>
+                          <SelectItem value="not-happy" className="text-slate-100">
+                            Not really 😞
+                          </SelectItem>
+                          <SelectItem value="prefer-not-say" className="text-slate-100">
+                            I'd rather not say
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="expectations" className="text-slate-200">
+                      What are your expectations from us?
+                    </Label>
+                    <Textarea
+                      id="expectations"
+                      value={formData.expectations}
+                      onChange={(e) => handleInputChange("expectations", e.target.value)}
+                      placeholder="Tell us what you're hoping to find here, what you need, or what you'd like to see..."
+                      className="bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 min-h-[120px]"
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={isPending}
+                    className="w-full bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-0 py-3 disabled:opacity-50"
+                  >
+                    {isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sharing Your Story...
+                      </>
+                    ) : (
+                      "Share Your Story"
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Random Note Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-gradient-to-r from-teal-900/30 to-purple-900/30 rounded-2xl p-8 border border-slate-700">
+              <p className="text-xl md:text-2xl text-slate-300 font-medium leading-relaxed">{randomNote}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 border-t border-slate-800 py-12">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div className="space-y-4">
+              <Link href="/" className="flex items-center space-x-2">
+                <SoulsticesLogo size={32} />
+                <span className="text-xl font-bold bg-gradient-to-r from-teal-400 to-purple-400 bg-clip-text text-transparent">
+                  Soulstices
+                </span>
+              </Link>
+              <p className="text-slate-400">
+                A peer support community helping people navigate their Soulstices with connection and compassion.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <h4 className="font-semibold text-slate-200">Services</h4>
+              <ul className="space-y-2 text-slate-400">
+                <li>
+                  <Link href="/#services" className="hover:text-teal-400 transition-colors">
+                    Peer Support Groups
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/#services" className="hover:text-teal-400 transition-colors">
+                    Professional Connections
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/#services" className="hover:text-teal-400 transition-colors">
+                    Community Activities
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/#services" className="hover:text-teal-400 transition-colors">
+                    Resource Navigation
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h4 className="font-semibold text-slate-200">Company</h4>
+              <ul className="space-y-2 text-slate-400">
+                <li>
+                  <Link href="/about" className="hover:text-teal-400 transition-colors">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-teal-400 transition-colors">
+                    Our Team
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-teal-400 transition-colors">
+                    Community Stories
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#" className="hover:text-teal-400 transition-colors">
+                    Resources
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h4 className="font-semibold text-slate-200">Contact</h4>
+              <ul className="space-y-2 text-slate-400">
+                <li className="flex items-center space-x-2">
+                  <span>Coming Soon...</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <span>+91-8619987836</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-slate-800 mt-8 pt-8 text-center text-slate-400">
+            <p>&copy; {new Date().getFullYear()} Soulstices. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
-
-export default AboutPage
