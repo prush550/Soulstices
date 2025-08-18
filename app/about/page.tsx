@@ -1,11 +1,40 @@
+"use client"
+
 import Link from "next/link"
-import SoulsticesLogo from "@/components/SoulsticesLogo"
-import Button from "@/components/Button"
+import { SoulsticesLogo } from "@/components/soulstices-logo"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Loader2 } from "lucide-react"
+import { submitAboutForm } from "./actions"
+import { useState, useTransition } from "react"
 
 const AboutPage = () => {
+  const [isPending, startTransition] = useTransition()
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+    service: "",
+  })
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }))
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault()
-    // Handle form submission logic here
+    startTransition(() => {
+      submitAboutForm(formData)
+    })
   }
 
   return (
@@ -35,7 +64,52 @@ const AboutPage = () => {
           </nav>
         </div>
       </header>
-      {/* Rest of the component continues... */}
+      {/* Form */}
+      <div className="container mx-auto px-4 lg:px-6 mt-10">
+        <Card>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="message">Message</Label>
+                <Textarea id="message" name="message" value={formData.message} onChange={handleChange} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="service">Service</Label>
+                <Select id="service" name="service" value={formData.service} onChange={handleChange} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a service" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="design">Design</SelectItem>
+                    <SelectItem value="development">Development</SelectItem>
+                    <SelectItem value="consulting">Consulting</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                type="submit"
+                className="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-0"
+              >
+                Submit
+              </Button>
+              {isPending && (
+                <Alert className="mt-4">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <AlertDescription>Submitting form...</AlertDescription>
+                </Alert>
+              )}
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
