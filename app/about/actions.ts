@@ -8,13 +8,13 @@ export interface FormData {
   expectations: string
 }
 
-// Replace this with your own Apps Script Web App URL
+// ✅ Replace with your deployed Google Apps Script Web App URL
 const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxnxrNwV2Ds_25g_a48_MngWQZcDt3fi_2lcSTGIRgC0TUI83qSw8rdUIpS6HbmpWn_/exec"
+  "https://script.google.com/macros/s/AKfycbywTWuoBfxm63_7EkWpM3G-Vwz6EwRo4g_DFE63ChGSMF5k2rl2U2GtjcxGtq5lETNFnw/exec"
 
 export async function submitAboutForm(formData: FormData) {
   try {
-    // Basic validation
+    // --- Basic Validation ---
     if (!formData.name || !formData.email) {
       return {
         success: false,
@@ -30,7 +30,7 @@ export async function submitAboutForm(formData: FormData) {
       }
     }
 
-    // Send form data to Google Apps Script endpoint
+    // --- Send Data to Google Apps Script ---
     const response = await fetch(SCRIPT_URL, {
       method: "POST",
       headers: {
@@ -40,12 +40,17 @@ export async function submitAboutForm(formData: FormData) {
     })
 
     if (!response.ok) {
-      throw new Error(`Google Script error: ${response.statusText}`)
+      throw new Error(`Google Script error: ${response.status} ${response.statusText}`)
     }
 
-    const result = await response.json()
+    let result: any = {}
+    try {
+      result = await response.json()
+    } catch {
+      throw new Error("Invalid JSON returned from Google Apps Script")
+    }
 
-    // Build a response message similar to your earlier logic
+    // --- Custom Response Messages ---
     let responseMessage =
       "Thank you for sharing your story with us! We'll be in touch soon."
 
@@ -57,12 +62,14 @@ export async function submitAboutForm(formData: FormData) {
         "It's wonderful to hear that you're doing well! Thank you for sharing your story. We'd love to have you as part of our supportive community."
     }
 
+    // --- Final Structured Response ---
     return {
       success: true,
       message: responseMessage,
       data: {
-        ...result, // In case Apps Script returns data like timestamp or row number
         name: formData.name,
+        email: formData.email,
+        ...result, // ✅ includes timestamp / row from Apps Script
         submittedAt: new Date().toISOString(),
       },
     }
@@ -70,7 +77,8 @@ export async function submitAboutForm(formData: FormData) {
     console.error("Error submitting form:", error)
     return {
       success: false,
-      message: "There was an error submitting your form. Please try again later.",
+      message:
+        "There was an error submitting your form. Please try again later.",
     }
   }
 }
