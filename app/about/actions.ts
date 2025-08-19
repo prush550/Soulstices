@@ -10,7 +10,7 @@ export interface FormData {
 
 // ✅ Replace with your deployed Google Apps Script Web App URL
 const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbywTWuoBfxm63_7EkWpM3G-Vwz6EwRo4g_DFE63ChGSMF5k2rl2U2GtjcxGtq5lETNFnw/exec"
+  "https://script.google.com/macros/s/AKfycbxKV01PTjHy2H-tTSzpcjXo2iWN1rfIRhur5uWM7eGLa9uPN3ehQeqw450cFINr9o_P/exec"
 
 export async function submitAboutForm(formData: FormData) {
   try {
