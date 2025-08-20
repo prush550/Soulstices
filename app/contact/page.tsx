@@ -147,23 +147,24 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Our Story Section */}
-      <section className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-purple-50 to-white">
-      {/* Company Name */}
-          <h1 className="text-4xl font-bold text-purple-700 mb-4 text-center">
-            Soulstices
-          </h1>
-
       {/* Contact Info */}
-          <div className="text-center mb-6">
-            <p className="text-lg text-gray-700">
+      <section className="py-16">
+        <div className="container mx-auto px-4 lg:px-6">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-gradient-to-r from-teal-900/30 to-purple-900/30 rounded-2xl p-8 border border-slate-700">
+              {/* Company Name */}
+              <p className="text-4xl font-bold text-purple-700 mb-4 text-center">Soulstices</p>
+              <p className="text-lg text-gray-700">
               📧 Email: <a href="mailto:mail.soulstices@gmail.com" className="text-purple-600">mail.soulstices@gmail.com</a>
-            </p>
-            <p className="text-lg text-gray-700">
-              📞 Contact: <a href="tel:+91-8619987836" className="text-purple-600">+91-8619987836</a>
-            </p>
+              </p>
+              <p className="text-lg text-gray-700">
+                📞 Contact: <a href="tel:+91-8619987836" className="text-purple-600">+91-8619987836</a>
+              </p>
+            </div>
           </div>
-        </section>
+        </div>
+      </section>
+
       
       {/* Tell Us About Yourself Form */}
       <section className="py-20 bg-slate-800/30">
