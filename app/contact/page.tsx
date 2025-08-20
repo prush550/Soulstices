@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { SoulsticesLogo } from "@/components/soulstices-logo"
-import { submitAboutForm } from "./actions"
+import { submitAboutForm } from "./action"
 import { useState, useTransition } from "react"
 
 export default function AboutPage() {
