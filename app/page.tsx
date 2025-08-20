@@ -24,7 +24,7 @@ export default function SoulsticesLanding() {
             <Link href="/about" className="text-slate-300 hover:text-teal-400 transition-colors">
               About
             </Link>
-            <Link href="#contact" className="text-slate-300 hover:text-teal-400 transition-colors">
+            <Link href="/contact" className="text-slate-300 hover:text-teal-400 transition-colors">
               Contact
             </Link>
             <Button className="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-0">
