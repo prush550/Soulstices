@@ -74,9 +74,9 @@ export default function SoulsticesLanding() {
       <section id="services" className="py-20 bg-slate-800/50">
         <div className="container mx-auto px-4 lg:px-6">
           <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold">How We Support You</h2>
+            <h2 className="text-3xl md:text-4xl font-bold">What Can We Do</h2>
             <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-              Peer support services designed to complement your professional mental health journey
+              Peer support services designed to help you connect with yourself and/or others 
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -87,7 +87,7 @@ export default function SoulsticesLanding() {
                 </div>
                 <h3 className="text-xl font-semibold text-slate-100">Peer Support Groups</h3>
                 <p className="text-slate-400">
-                  Connect with others who understand your journey. Share experiences and find encouragement in a safe,
+                  Connect with others who are on their own journey. Share experiences, listen to the lives of others and find encouragement in a safe,
                   supportive environment.
                 </p>
               </CardContent>
@@ -97,10 +97,9 @@ export default function SoulsticesLanding() {
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
                   <Brain className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-100">Professional Connections</h3>
+                <h3 className="text-xl font-semibold text-slate-100">Activities in City</h3>
                 <p className="text-slate-400">
-                  Get connected with licensed mental health professionals. We help bridge the gap between peer support
-                  and professional care.
+                  Get connected with various active communities in your city based on certain activities. Be it cycling, football, cinephilia or whatever your hobby is, if there is an active community in your city, you can find it here. 
                 </p>
               </CardContent>
             </Card>
@@ -109,9 +108,9 @@ export default function SoulsticesLanding() {
                 <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
                   <Heart className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-100">Community Activities</h3>
+                <h3 className="text-xl font-semibold text-slate-100">Member-Only Community Activities</h3>
                 <p className="text-slate-400">
-                  Participate in casual group activities, workshops, and events designed to foster connection and
+                  Participate in exclusive member-only casual group activities, workshops, and events designed to foster connection and
                   personal growth.
                 </p>
               </CardContent>
@@ -152,7 +151,7 @@ export default function SoulsticesLanding() {
                   </p>
                   <p className="text-slate-300 leading-relaxed">
                     We are not professionally-certified mental health specialists. Instead, we're a group of people
-                    dedicated to easing the pathway to mental health and well-being by bringing people together to
+                    dedicated to easing the pathway to mental well-being by bringing people together to
                     create a safe environment for sharing and growth.
                   </p>
                   <div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-4">
@@ -195,11 +194,10 @@ export default function SoulsticesLanding() {
                     <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
                       <Brain className="w-5 h-5 text-white" />
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-100">Connect with Professionals</h3>
+                    <h3 className="text-lg font-semibold text-slate-100">Create Your Group </h3>
                   </div>
                   <p className="text-slate-400">
-                    We help you find and connect with licensed mental health professionals in your area, making the
-                    transition from peer support to professional care seamless.
+                    Create a group of your own based on a certain theme or activity; allow people to join and revel in the company of like-minded people.
                   </p>
                 </CardContent>
               </Card>
