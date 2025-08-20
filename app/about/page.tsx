@@ -437,7 +437,7 @@ export default function AboutPage() {
               <h4 className="font-semibold text-slate-200">Contact</h4>
               <ul className="space-y-2 text-slate-400">
                 <li className="flex items-center space-x-2">
-                  <span>Coming Soon...</span>
+                  <span>mail.soulstices@gmail.com</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <span>+91-8619987836</span>
