@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getAllPosts } from "@/lib/mdx";
+import { getAllPosts } from "@/lib/mdx"; // Ensure this function is defined correctly
 
 export default function BlogPage() {
-  const posts = getAllPosts();
+  const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const allPosts = await getAllPosts(); // Ensure this function returns a promise
+      setPosts(allPosts);
+    };
+
+    fetchPosts();
+  }, []);
 
   const categories = ["All", ...new Set(posts.map((p) => p.category))];
 
@@ -39,7 +48,9 @@ export default function BlogPage() {
           className="px-4 py-2 border rounded-2xl shadow-sm"
         >
           {categories.map((cat) => (
-            <option key={cat}>{cat}</option>
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
           ))}
         </select>
       </div>
