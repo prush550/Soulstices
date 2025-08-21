@@ -107,10 +107,10 @@ export default function AboutPage() {
             <Link href="/#services" className="text-slate-300 hover:text-teal-400 transition-colors">
               Services
             </Link>
-            <Link href="/about" className="text-teal-400 font-medium">
+            <Link href="/about" className="text-slate-300 hover:text-teal-400 transition-colors">
               About
             </Link>
-            <Link href="/contact" className="text-slate-300 hover:text-teal-400 transition-colors">
+            <Link href="/contact" className="text-teal-400 font-medium">
               Contact
             </Link>
             <Button className="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-0">
@@ -153,12 +153,12 @@ export default function AboutPage() {
           <div className="max-w-2xl mx-auto text-center">
             <div className="bg-gradient-to-r from-teal-900/30 to-purple-900/30 rounded-2xl p-8 border border-slate-700">
               {/* Company Name */}
-              <p className="text-4xl font-bold text-purple-700 mb-4 text-center">Soulstices</p>
-              <p className="text-lg text-gray-700">
-              📧 Email: <a href="mailto:mail.soulstices@gmail.com" className="text-purple-600">mail.soulstices@gmail.com</a>
+              <p className="text-4xl font-bold mb-4 text-center">Soulstices</p>
+              <p className="text-lg">
+              📧 Email: <a href="mailto:mail.soulstices@gmail.com" className="text-lg font-bold">mail.soulstices@gmail.com</a>
               </p>
-              <p className="text-lg text-gray-700">
-                📞 Contact: <a href="tel:+91-8619987836" className="text-purple-600">+91-8619987836</a>
+              <p className="text-lg">
+                📞 Contact: <a href="tel:+91-8619987836" className="text-lg font-bold">+91-8619987836</a>
               </p>
             </div>
           </div>
