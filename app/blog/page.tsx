@@ -1,22 +1,14 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import Link from "next/link";
 import { getAllPosts } from "@/lib/mdx"; // Ensure this function is defined correctly
+import { useState } from "react";
+import Link from "next/link";
 
-export default function BlogPage() {
-  const [posts, setPosts] = useState([]);
+type Props = {
+  posts: BlogPost[]; // Define BlogPost type if not already defined
+};
+
+export default function BlogPage({ posts }: Props) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const allPosts = await getAllPosts(); // Ensure this function returns a promise
-      setPosts(allPosts);
-    };
-
-    fetchPosts();
-  }, []);
 
   const categories = ["All", ...new Set(posts.map((p) => p.category))];
 
@@ -75,4 +67,15 @@ export default function BlogPage() {
       </div>
     </div>
   );
+}
+
+// Fetch posts at build time
+export async function getStaticProps() {
+  const posts = getAllPosts(); // Ensure this function is synchronous or handle it accordingly
+
+  return {
+    props: {
+      posts,
+    },
+  };
 }
