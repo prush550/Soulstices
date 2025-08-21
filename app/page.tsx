@@ -333,7 +333,7 @@ export default function SoulsticesLanding() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-teal-400 transition-colors">
+                  <Link href="/blog" className="hover:text-teal-400 transition-colors">
                     Blog
                   </Link>
                 </li>
