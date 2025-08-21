@@ -1,13 +1,19 @@
 import { getPostBySlug } from "@/lib/mdx";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import { MDXRemote } from "next-mdx-remote"; // Adjust import based on your setup
+import { notFound } from "next/navigation"; // Import notFound for handling 404
 
 type Props = {
   params: { slug: string };
 };
 
-export default function BlogPostPage({ params }: Props) {
+export default async function BlogPostPage({ params }: Props) {
   const { slug } = params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug); // Ensure this is awaited
+
+  // Handle case where post is not found
+  if (!post) {
+    notFound(); // Redirect to 404 page
+  }
 
   return (
     <article className="max-w-3xl mx-auto px-6 py-12 prose dark:prose-invert">
