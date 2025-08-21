@@ -1,3 +1,4 @@
+import fs from "fs"; // Import fs module
 import path from "path";
 import matter from "gray-matter";
 
@@ -15,7 +16,7 @@ export function getAllPosts(): BlogPost[] {
   const files = fs.readdirSync(postsDirectory);
 
   const posts = files.map((filename) => {
-    const slug = filename.replace(".mdx", "");
+    const slug = filename.replace(/\.mdx?$/, ""); // Handle both .md and .mdx extensions
     const filePath = path.join(postsDirectory, filename);
     const fileContents = fs.readFileSync(filePath, "utf-8");
     const { data } = matter(fileContents);
