@@ -1,6 +1,8 @@
-import { getAllPosts } from "@/lib/mdx"; // Ensure this function is defined correctly
-import { useEffect, useState } from "react";
+"use client"; // Mark this file as a client component
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getAllPosts } from "@/lib/mdx"; // Ensure this function is defined correctly
 
 export default function BlogPage() {
   const [posts, setPosts] = useState([]);
