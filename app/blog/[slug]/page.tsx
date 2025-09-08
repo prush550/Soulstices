@@ -15,7 +15,7 @@ interface BlogPostPageProps {
   }
 }
 
-export default function BlogPostPage({ params }: BlogPostPageProps) {
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const post = getPostBySlug(params.slug)
   const allPosts = getAllPosts()
 
