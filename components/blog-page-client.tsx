@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import type { BlogPost } from "@/lib/mdx"
+import type { BlogPost } from "@/lib/types"
 import BlogSearch from "@/components/blog-search"
 import BlogSearchResults from "@/components/blog-search-results"
 import { BlogSidebar } from "@/components/blog-sidebar"
