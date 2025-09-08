@@ -10,7 +10,7 @@ import { SoulsticesLogo } from "@/components/soulstices-logo"
 import { Calendar, Trash2, Eye, Plus, Clock, FileText } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import type { BlogPost } from "@/lib/mdx"
+import type { BlogPost } from "@/lib/types"
 
 export default function ManageBlogPage() {
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
