@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { searchPosts, type BlogPost } from "@/lib/mdx"
+import type { BlogPost } from "@/lib/mdx"
 import BlogSearch from "@/components/blog-search"
 import BlogSearchResults from "@/components/blog-search-results"
 import { BlogSidebar } from "@/components/blog-sidebar"
@@ -12,6 +12,26 @@ import Link from "next/link"
 interface BlogPageClientProps {
   initialPosts: BlogPost[]
   initialCategories: { name: string; count: number }[]
+}
+
+function clientSearchPosts(posts: BlogPost[], query: string, category: string): BlogPost[] {
+  let filtered = posts
+
+  if (category) {
+    filtered = filtered.filter((post) => post.category === category)
+  }
+
+  if (query) {
+    const searchTerm = query.toLowerCase()
+    filtered = filtered.filter(
+      (post) =>
+        post.title.toLowerCase().includes(searchTerm) ||
+        post.excerpt.toLowerCase().includes(searchTerm) ||
+        post.category.toLowerCase().includes(searchTerm),
+    )
+  }
+
+  return filtered
 }
 
 export default function BlogPageClient({ initialPosts, initialCategories }: BlogPageClientProps) {
@@ -26,7 +46,7 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
       setSearchQuery(query)
       setSelectedCategory(category)
 
-      const filtered = searchPosts(initialPosts, query, category)
+      const filtered = clientSearchPosts(initialPosts, query, category)
       setFilteredPosts(filtered)
       setDisplayedPosts(filtered.slice(0, postsToShow))
     },
