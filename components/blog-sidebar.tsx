@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Calendar, Tag, TrendingUp, Mail, Settings } from "lucide-react"
 import Link from "next/link"
-import type { BlogPost } from "@/lib/mdx"
+import type { BlogPost } from "@/lib/types"
 
 interface BlogSidebarProps {
   posts: BlogPost[]
