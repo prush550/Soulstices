@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Calendar, User, Clock } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import type { BlogPost } from "@/lib/mdx"
+import type { BlogPost } from "@/lib/types"
 
 interface BlogSearchResultsProps {
   posts: BlogPost[]
