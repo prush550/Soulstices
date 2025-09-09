@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-const response = await fetch('/api/posts')
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -15,14 +14,26 @@ import type { BlogPost } from "@/lib/types"
 export default function ManageBlogPage() {
   const [allPosts, setAllPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
+        setLoading(true)
+        setError(null)
+        
+        // Fetch posts from API instead of top-level await
+        const response = await fetch('/api/posts?status=all')
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch posts: ${response.status}`)
+        }
+        
         const posts = await response.json()
         setAllPosts(posts)
       } catch (error) {
         console.error("Error fetching posts:", error)
+        setError(error instanceof Error ? error.message : "Failed to fetch posts")
       } finally {
         setLoading(false)
       }
@@ -45,9 +56,11 @@ export default function ManageBlogPage() {
         setAllPosts(allPosts.filter((post) => post.slug !== slug))
         alert("Blog post deleted successfully!")
       } else {
-        alert("Failed to delete blog post")
+        const errorData = await response.json()
+        alert(`Failed to delete blog post: ${errorData.error || 'Unknown error'}`)
       }
     } catch (error) {
+      console.error("Error deleting blog post:", error)
       alert("Error deleting blog post")
     }
   }
@@ -59,14 +72,19 @@ export default function ManageBlogPage() {
       })
 
       if (response.ok) {
-        // Refresh posts
-        const posts = await response.json()
-        setAllPosts(posts)
+        // Refresh posts after publishing
+        const updatedResponse = await fetch('/api/posts?status=all')
+        if (updatedResponse.ok) {
+          const updatedPosts = await updatedResponse.json()
+          setAllPosts(updatedPosts)
+        }
         alert("Post published successfully!")
       } else {
-        alert("Failed to publish post")
+        const errorData = await response.json()
+        alert(`Failed to publish post: ${errorData.error || 'Unknown error'}`)
       }
     } catch (error) {
+      console.error("Error publishing post:", error)
       alert("Error publishing post")
     }
   }
@@ -107,6 +125,22 @@ export default function ManageBlogPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-400 mx-auto mb-4"></div>
           <p className="text-slate-400">Loading blog posts...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">Error loading posts: {error}</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="bg-teal-600 hover:bg-teal-700"
+          >
+            Retry
+          </Button>
         </div>
       </div>
     )
