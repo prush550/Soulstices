@@ -10,20 +10,44 @@ import { BlogSidebar } from "@/components/blog-sidebar"
 import { CommentsSection } from "@/components/comments-section"
 
 interface BlogPostPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = getPostBySlug(params.slug)
+  // Await the params Promise to get the actual parameters
+  const resolvedParams = await params
+  const { slug } = resolvedParams
+
+  // Validate slug
+  if (!slug || typeof slug !== 'string') {
+    notFound()
+  }
+
+  const post = getPostBySlug(slug)
   const allPosts = getAllPosts()
 
   if (!post) {
     notFound()
   }
 
-  const relatedPosts = allPosts.filter((p) => p.category === post.category && p.slug !== post.slug).slice(0, 3)
+  // Only show published posts
+  if (post.status !== 'published') {
+    notFound()
+  }
+
+  // Check if post should be published yet (for scheduled posts)
+  const now = new Date()
+  const postDate = new Date(post.date)
+  
+  if (postDate > now) {
+    notFound()
+  }
+
+  const relatedPosts = allPosts
+    .filter((p) => p.category === post.category && p.slug !== post.slug && p.status === 'published')
+    .slice(0, 3)
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
@@ -87,7 +111,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   </div>
                   <div className="flex items-center space-x-1">
                     <User className="w-4 h-4" />
-                    <span>Soulstices Team</span>
+                    <span>{post.author || "Soulstices Team"}</span>
                   </div>
                 </div>
               </div>
@@ -101,7 +125,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               {/* Featured Image */}
               <div className="relative h-64 md:h-96 rounded-xl overflow-hidden mb-8">
                 <Image
-                  src={`/placeholder.png?height=400&width=800&text=${encodeURIComponent(post.title)}`}
+                  src={post.featuredImage || `/placeholder.png?height=400&width=800&text=${encodeURIComponent(post.title)}`}
                   alt={post.title}
                   fill
                   className="object-cover"
@@ -120,6 +144,20 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </div>
             </div>
 
+            {/* Tags */}
+            {post.tags && post.tags.length > 0 && (
+              <div className="mb-8">
+                <h4 className="text-lg font-semibold mb-3 text-slate-300">Tags</h4>
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map((tag, index) => (
+                    <Badge key={index} variant="outline" className="text-slate-400 border-slate-600">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Related Posts */}
             {relatedPosts.length > 0 && (
               <div className="mb-12">
@@ -132,7 +170,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                     >
                       <div className="relative h-32 overflow-hidden">
                         <Image
-                          src={`/placeholder_image.png?height=200&width=300&text=${encodeURIComponent(relatedPost.title)}`}
+                          src={relatedPost.featuredImage || `/placeholder_image.png?height=200&width=300&text=${encodeURIComponent(relatedPost.title)}`}
                           alt={relatedPost.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -163,4 +201,41 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       </div>
     </div>
   )
+}
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: BlogPostPageProps) {
+  const resolvedParams = await params
+  const { slug } = resolvedParams
+  
+  const post = getPostBySlug(slug)
+  
+  if (!post) {
+    return {
+      title: 'Post Not Found',
+      description: 'The requested blog post could not be found.'
+    }
+  }
+  
+  return {
+    title: `${post.title} | Soulstices Blog`,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: 'article',
+      publishedTime: post.date,
+      authors: [post.author || 'Soulstices Team'],
+      tags: post.tags,
+    },
+  }
+}
+
+// Generate static params for build optimization
+export async function generateStaticParams() {
+  const posts = getAllPosts('published')
+  
+  return posts.map((post) => ({
+    slug: post.slug,
+  }))
 }
