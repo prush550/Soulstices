@@ -1,20 +1,39 @@
-import fs from "fs"
-import path from "path"
-import matter from "gray-matter"
 import type { BlogPost } from "./types"
 
-const postsDirectory = path.join(process.cwd(), "content/blog")
+// Only import Node.js modules if we're in a server environment
+let fs: any = null
+let path: any = null
+let matter: any = null
+
+if (typeof window === "undefined") {
+  // We're on the server, safe to import Node.js modules
+  fs = require("fs")
+  path = require("path")
+  matter = require("gray-matter")
+}
+
+const getPostsDirectory = () => {
+  if (typeof window !== "undefined" || !path) {
+    return null
+  }
+  return path.join(process.cwd(), "content/blog")
+}
 
 export function getAllPosts(status?: "published" | "draft" | "scheduled"): BlogPost[] {
+  if (typeof window !== "undefined" || !fs || !path || !matter) {
+    return []
+  }
+
   try {
-    if (!fs.existsSync(postsDirectory)) {
+    const postsDirectory = getPostsDirectory()
+    if (!postsDirectory || !fs.existsSync(postsDirectory)) {
       return []
     }
 
     const fileNames = fs.readdirSync(postsDirectory)
     const allPostsData = fileNames
-      .filter((name) => name.endsWith(".mdx"))
-      .map((name) => {
+      .filter((name: string) => name.endsWith(".mdx"))
+      .map((name: string) => {
         const slug = name.replace(/\.mdx$/, "")
         const fullPath = path.join(postsDirectory, name)
         const fileContents = fs.readFileSync(fullPath, "utf8")
@@ -34,10 +53,10 @@ export function getAllPosts(status?: "published" | "draft" | "scheduled"): BlogP
           tags: data.tags || [],
         } as BlogPost
       })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort((a: BlogPost, b: BlogPost) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
     if (status) {
-      return allPostsData.filter((post) => post.status === status)
+      return allPostsData.filter((post: BlogPost) => post.status === status)
     }
 
     return allPostsData
@@ -58,7 +77,16 @@ export function getPublishedPosts(): BlogPost[] {
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {
+  if (typeof window !== "undefined" || !fs || !path || !matter) {
+    return null
+  }
+
   try {
+    const postsDirectory = getPostsDirectory()
+    if (!postsDirectory) {
+      return null
+    }
+
     const fullPath = path.join(postsDirectory, `${slug}.mdx`)
 
     if (!fs.existsSync(fullPath)) {
