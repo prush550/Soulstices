@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getAllPosts } from "@/lib/mdx"
+const response = await fetch('/api/posts')
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -19,7 +19,7 @@ export default function ManageBlogPage() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const posts = getAllPosts("all")
+        const posts = await response.json()
         setAllPosts(posts)
       } catch (error) {
         console.error("Error fetching posts:", error)
@@ -60,7 +60,7 @@ export default function ManageBlogPage() {
 
       if (response.ok) {
         // Refresh posts
-        const posts = getAllPosts("all")
+        const posts = await response.json()
         setAllPosts(posts)
         alert("Post published successfully!")
       } else {
