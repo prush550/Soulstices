@@ -1,83 +1,78 @@
-"use client"
+"use client";
 
-import { useState, useCallback } from "react"
-import { useSession, signIn } from "next-auth/react"
-import type { BlogPost } from "@/lib/types"
-import BlogSearch from "@/components/blog-search"
-import BlogSearchResults from "@/components/blog-search-results"
-import { BlogSidebar } from "@/components/blog-sidebar"
-import { Button } from "@/components/ui/button"
-import { SoulsticesLogo } from "@/components/soulstices-logo"
-import Link from "next/link"
+import { useState, useCallback } from "react";
+import { useSession, signIn } from "next-auth/react";
+import type { BlogPost } from "@/lib/types";
+import BlogSearch from "@/components/blog-search";
+import BlogSearchResults from "@/components/blog-search-results";
+import { BlogSidebar } from "@/components/blog-sidebar";
+import { Button } from "@/components/ui/button";
+import { SoulsticesLogo } from "@/components/soulstices-logo";
+import Link from "next/link";
 
 interface BlogPageClientProps {
-  initialPosts: BlogPost[]
-  initialCategories: { name: string; count: number }[]
+  initialPosts: BlogPost[];
+  initialCategories: { name: string; count: number }[];
 }
 
 function clientSearchPosts(posts: BlogPost[], query: string, category: string): BlogPost[] {
-  let filtered = posts
+  let filtered = posts;
 
-  if (category) {
-    filtered = filtered.filter((post) => post.category === category)
-  }
-
+  if (category) filtered = filtered.filter((post) => post.category === category);
   if (query) {
-    const searchTerm = query.toLowerCase()
+    const searchTerm = query.toLowerCase();
     filtered = filtered.filter(
       (post) =>
         post.title.toLowerCase().includes(searchTerm) ||
         post.excerpt.toLowerCase().includes(searchTerm) ||
         post.category.toLowerCase().includes(searchTerm),
-    )
+    );
   }
 
-  return filtered
+  return filtered;
 }
 
 export default function BlogPageClient({ initialPosts, initialCategories }: BlogPageClientProps) {
-  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(initialPosts)
-  const [displayedPosts, setDisplayedPosts] = useState<BlogPost[]>(initialPosts.slice(0, 6))
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("")
-  const [postsToShow, setPostsToShow] = useState(6)
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(initialPosts);
+  const [displayedPosts, setDisplayedPosts] = useState<BlogPost[]>(initialPosts.slice(0, 6));
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [postsToShow, setPostsToShow] = useState(6);
 
-  const { data: session } = useSession()
+  const { data: session, status } = useSession();
 
   const handleSearch = useCallback(
     (query: string, category: string) => {
-      setSearchQuery(query)
-      setSelectedCategory(category)
+      setSearchQuery(query);
+      setSelectedCategory(category);
 
-      const filtered = clientSearchPosts(initialPosts, query, category)
-      setFilteredPosts(filtered)
-      setDisplayedPosts(filtered.slice(0, postsToShow))
+      const filtered = clientSearchPosts(initialPosts, query, category);
+      setFilteredPosts(filtered);
+      setDisplayedPosts(filtered.slice(0, postsToShow));
     },
     [initialPosts, postsToShow],
-  )
+  );
 
   const loadMorePosts = () => {
-    const newPostsToShow = postsToShow + 6
-    setPostsToShow(newPostsToShow)
-    setDisplayedPosts(filteredPosts.slice(0, newPostsToShow))
-  }
+    const newPostsToShow = postsToShow + 6;
+    setPostsToShow(newPostsToShow);
+    setDisplayedPosts(filteredPosts.slice(0, newPostsToShow));
+  };
 
-  const hasActiveSearch = searchQuery || selectedCategory
-  const hasMorePosts = displayedPosts.length < filteredPosts.length
+  const hasActiveSearch = searchQuery || selectedCategory;
+  const hasMorePosts = displayedPosts.length < filteredPosts.length;
 
-  // --- Admin Panel Logic ---
   const renderAdminPanel = () => {
-    if (!session?.user) {
+    if (status !== "authenticated") {
       return (
         <div className="mt-8 p-4 border rounded bg-yellow-50">
           <p className="mb-2 text-yellow-700">You must log in to manage posts.</p>
           <Button onClick={() => signIn()}>Log In</Button>
         </div>
-      )
+      );
     }
 
-    const { role } = session.user
-    if (role === "FOUNDER" || role === "COLLABORATOR") {
+    if (session?.user.role === "FOUNDER" || session?.user.role === "COLLABORATOR") {
       return (
         <div className="mt-8 flex flex-col gap-2">
           <Link href="/admin/create-post" className="btn">
@@ -87,16 +82,14 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
             Manage Posts
           </Link>
         </div>
-      )
+      );
     }
 
-    // MEMBER users see nothing
-    return null
-  }
+    return null; // MEMBER users see nothing
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
@@ -122,9 +115,7 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Content */}
           <div className="flex-1">
-            {/* Header */}
             <div className="mb-8">
               <h1 className="text-4xl font-bold text-gray-900 mb-4">Soulstices Blog</h1>
               <p className="text-lg text-gray-600">
@@ -132,7 +123,6 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
               </p>
             </div>
 
-            {/* Search */}
             <div className="mb-8">
               <BlogSearch
                 categories={initialCategories}
@@ -142,7 +132,6 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
               />
             </div>
 
-            {/* Results */}
             <BlogSearchResults
               posts={displayedPosts}
               searchQuery={searchQuery}
@@ -150,7 +139,6 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
               totalPosts={initialPosts.length}
             />
 
-            {/* Load More */}
             {hasMorePosts && !hasActiveSearch && (
               <div className="text-center mt-8">
                 <Button onClick={loadMorePosts} variant="outline">
@@ -159,16 +147,14 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
               </div>
             )}
 
-            {/* --- Admin Panel --- */}
             {renderAdminPanel()}
           </div>
 
-          {/* Sidebar */}
           <div className="lg:w-80">
             <BlogSidebar posts={initialPosts} />
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
