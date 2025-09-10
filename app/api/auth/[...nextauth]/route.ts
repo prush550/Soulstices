@@ -1,10 +1,28 @@
-import NextAuth from "next-auth";
+import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User as PrismaUser } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
+
+// Allowed roles
+type Role = "FOUNDER" | "COLLABORATOR" | "MEMBER";
+
+// Extend NextAuth session & JWT types
+declare module "next-auth" {
+  interface Session {
+    user: {
+      name?: string | null;
+      email?: string | null;
+      role: Role;
+    };
+  }
+
+  interface JWT {
+    role?: Role;
+  }
+}
 
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -20,7 +38,7 @@ const handler = NextAuth({
           throw new Error("Email and password are required");
         }
 
-        const user = await prisma.user.findUnique({
+        const user: PrismaUser | null = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
@@ -37,12 +55,14 @@ const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = (user as any).role;
+      if (user) {
+        token.role = (user as PrismaUser).role as Role;
+      }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.role = token.role as string;
+      if (session.user && token.role) {
+        session.user.role = token.role;
       }
       return session;
     },
