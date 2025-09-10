@@ -1,5 +1,7 @@
-import type { Metadata } from 'next'
+// app/layout.tsx
 import './globals.css'
+import { SessionProvider } from "next-auth/react"
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Soulstices',
@@ -9,12 +11,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <head>
+        <link rel="icon" href="/favicon.jpeg" />
+      </head>
+      <body>
+        <SessionProvider>{children}</SessionProvider>
+      </body>
     </html>
   )
 }
