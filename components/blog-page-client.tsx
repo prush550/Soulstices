@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { useSession, signIn } from "next-auth/react"
 import type { BlogPost } from "@/lib/types"
 import BlogSearch from "@/components/blog-search"
 import BlogSearchResults from "@/components/blog-search-results"
@@ -41,6 +42,8 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
   const [selectedCategory, setSelectedCategory] = useState("")
   const [postsToShow, setPostsToShow] = useState(6)
 
+  const { data: session } = useSession()
+
   const handleSearch = useCallback(
     (query: string, category: string) => {
       setSearchQuery(query)
@@ -61,6 +64,35 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
 
   const hasActiveSearch = searchQuery || selectedCategory
   const hasMorePosts = displayedPosts.length < filteredPosts.length
+
+  // --- Admin Panel Logic ---
+  const renderAdminPanel = () => {
+    if (!session?.user) {
+      return (
+        <div className="mt-8 p-4 border rounded bg-yellow-50">
+          <p className="mb-2 text-yellow-700">You must log in to manage posts.</p>
+          <Button onClick={() => signIn()}>Log In</Button>
+        </div>
+      )
+    }
+
+    const { role } = session.user
+    if (role === "FOUNDER" || role === "COLLABORATOR") {
+      return (
+        <div className="mt-8 flex flex-col gap-2">
+          <Link href="/admin/create-post" className="btn">
+            Create Post
+          </Link>
+          <Link href="/admin/manage-posts" className="btn">
+            Manage Posts
+          </Link>
+        </div>
+      )
+    }
+
+    // MEMBER users see nothing
+    return null
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -126,6 +158,9 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
                 </Button>
               </div>
             )}
+
+            {/* --- Admin Panel --- */}
+            {renderAdminPanel()}
           </div>
 
           {/* Sidebar */}
