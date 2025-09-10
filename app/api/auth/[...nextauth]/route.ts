@@ -6,10 +6,8 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-// Allowed roles
 type Role = "FOUNDER" | "COLLABORATOR" | "MEMBER";
 
-// Extend NextAuth session & JWT types
 declare module "next-auth" {
   interface Session {
     user: {
@@ -61,8 +59,8 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token.role) {
-        session.user.role = token.role;
+      if (session.user) {
+        session.user.role = (token.role as Role) || "MEMBER";
       }
       return session;
     },
