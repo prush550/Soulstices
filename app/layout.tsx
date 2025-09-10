@@ -1,7 +1,6 @@
-// app/layout.tsx
 import './globals.css'
-import { SessionProvider } from "next-auth/react"
 import type { Metadata } from 'next'
+import Providers from '@/components/Providers'
 
 export const metadata: Metadata = {
   title: 'Soulstices',
@@ -18,7 +17,8 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.jpeg" />
       </head>
       <body>
-        <SessionProvider>{children}</SessionProvider>
+        {/* Wrap client-only context in a client component */}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
