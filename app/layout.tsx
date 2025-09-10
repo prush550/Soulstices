@@ -13,10 +13,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon.jpeg" />
-      </head>
-      <body>
+     <body>
         {/* Wrap client-only context in a client component */}
         <Providers>{children}</Providers>
       </body>
