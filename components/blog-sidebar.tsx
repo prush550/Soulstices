@@ -1,53 +1,54 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Calendar, Tag, TrendingUp, Mail, Settings } from "lucide-react"
-import Link from "next/link"
-import type { BlogPost } from "@/lib/types"
+import type React from "react";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Calendar, Tag, TrendingUp, Mail, Settings } from "lucide-react";
+import Link from "next/link";
+import type { BlogPost } from "@/lib/types";
 
 interface BlogSidebarProps {
-  posts: BlogPost[]
+  posts: BlogPost[];
 }
 
 export function BlogSidebar({ posts }: BlogSidebarProps) {
-  const [email, setEmail] = useState("")
-  const [isSubscribing, setIsSubscribing] = useState(false)
+  const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const { data: session, status } = useSession();
 
   // Get categories with counts
   const categories = posts.reduce(
     (acc, post) => {
-      const category = post.category || "General"
-      acc[category] = (acc[category] || 0) + 1
-      return acc
+      const category = post.category || "General";
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
     },
     {} as Record<string, number>,
-  )
+  );
 
   const categoryList = Object.entries(categories)
     .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count)
+    .sort((a, b) => b.count - a.count);
 
   // Get recent posts (last 5)
-  const recentPosts = posts.slice(0, 5)
+  const recentPosts = posts.slice(0, 5);
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubscribing(true)
+    e.preventDefault();
+    setIsSubscribing(true);
 
     // Simulate newsletter signup
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    alert("Thank you for subscribing to our newsletter!")
-    setEmail("")
-    setIsSubscribing(false)
-  }
+    alert("Thank you for subscribing to our newsletter!");
+    setEmail("");
+    setIsSubscribing(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -152,28 +153,37 @@ export function BlogSidebar({ posts }: BlogSidebarProps) {
         </CardContent>
       </Card>
 
-      {/* Admin Links */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Settings className="w-5 h-5" />
-            <span>Admin</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Link href="/admin" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
-              Create New Post
-            </Link>
-            <Link href="/admin/manage" className="block text-sm text-gray-600 hover:text-blue-600 transition-colors">
-              Manage Posts
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Admin Links (only for FOUNDER / COLLABORATOR) */}
+      {status === "authenticated" &&
+        (session?.user.role === "FOUNDER" || session?.user.role === "COLLABORATOR") && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Settings className="w-5 h-5" />
+                <span>Admin</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Link
+                  href="/admin/create-post"
+                  className="block text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  Create New Post
+                </Link>
+                <Link
+                  href="/admin/manage-posts"
+                  className="block text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  Manage Posts
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
     </div>
-  )
+  );
 }
 
 // Default export
-export default BlogSidebar
+export default BlogSidebar;
