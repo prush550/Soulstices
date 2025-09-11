@@ -12,10 +12,11 @@ model User {
   name          String?
   email         String    @unique
   password      String
-  role          String    @default("MEMBER") // Changed from Role enum to String
+  role          String    @default("MEMBER") // FOUNDER, COLLABORATOR, MEMBER
   emailVerified DateTime?
   sessions      Session[]
   accounts      Account[]
+  posts         Post[]
 }
 
 model Account {
@@ -44,6 +45,18 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// Removed the enum Role since SQLite doesn't support enums
-// The role field in User model is now a String with default "MEMBER"
-// You can enforce valid values in your application code
+// NEW: Post model
+model Post {
+  id            String   @id @default(cuid())
+  title         String
+  excerpt       String
+  category      String
+  content       String
+  status        String   @default("draft") // draft | published | scheduled
+  publishDate   DateTime
+  featuredImage String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id])
+}
