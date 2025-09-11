@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import type { BlogPost } from "@/lib/types";
 import BlogSearch from "@/components/blog-search";
 import BlogSearchResults from "@/components/blog-search-results";
@@ -63,16 +63,10 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
   const hasMorePosts = displayedPosts.length < filteredPosts.length;
 
   const renderAdminPanel = () => {
-    if (status !== "authenticated") {
-      return (
-        <div className="mt-8 p-4 border rounded bg-yellow-50">
-          <p className="mb-2 text-yellow-700">You must log in to manage posts.</p>
-          <Button onClick={() => signIn()}>Log In</Button>
-        </div>
-      );
-    }
-
-    if (session?.user.role === "FOUNDER" || session?.user.role === "COLLABORATOR") {
+    if (
+      status === "authenticated" &&
+      (session?.user.role === "FOUNDER" || session?.user.role === "COLLABORATOR")
+    ) {
       return (
         <div className="mt-8 flex flex-col gap-2">
           <Link href="/admin/create-post" className="btn">
@@ -84,8 +78,7 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
         </div>
       );
     }
-
-    return null; // MEMBER users see nothing
+    return null; // Hidden for guests and MEMBER users
   };
 
   return (
