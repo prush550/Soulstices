@@ -90,7 +90,7 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
             <span className="text-xl font-bold text-gray-900">Soulstices</span>
           </Link>
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/#services" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/services" className="text-gray-600 hover:text-gray-900 transition-colors">
               Services
             </Link>
             <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors">
