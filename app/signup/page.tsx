@@ -1,64 +1,89 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const res = await fetch("/api/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    })
+    try {
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    setLoading(false)
+      const data = await res.json();
 
-    if (res.ok) {
-      alert("Signup successful! You can now log in.")
-      window.location.href = "/login"
-    } else {
-      const data = await res.json()
-      alert(data.error || "Signup failed")
+      if (!res.ok) {
+        setError(data.error || "Signup failed");
+      } else {
+        router.push("/login"); // redirect to login after signup
+      }
+    } catch (err) {
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-100">
+    <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
       <form
         onSubmit={handleSubmit}
-        className="bg-slate-800 p-8 rounded-lg shadow-md w-full max-w-sm space-y-4"
+        className="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md"
       >
-        <h1 className="text-2xl font-bold text-center">Signup</h1>
-        <Input
+        <h1 className="text-2xl font-bold mb-6">Signup</h1>
+
+        {error && (
+          <p className="bg-red-500 text-white p-2 rounded mb-4">{error}</p>
+        )}
+
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full p-3 mb-4 rounded bg-slate-700 focus:outline-none"
+          required
+        />
+
+        <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 mb-4 rounded bg-slate-700 focus:outline-none"
           required
         />
-        <Input
+
+        <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-3 mb-6 rounded bg-slate-700 focus:outline-none"
           required
         />
-        <Button
+
+        <button
           type="submit"
-          className="w-full bg-gradient-to-r from-teal-500 to-purple-600"
           disabled={loading}
+          className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 rounded font-semibold transition disabled:opacity-50"
         >
           {loading ? "Signing up..." : "Signup"}
-        </Button>
+        </button>
       </form>
     </div>
-  )
+  );
 }
