@@ -1,3 +1,4 @@
+// app/api/auth/[...nextauth]/route.ts
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -22,7 +23,10 @@ declare module "next-auth" {
   }
 }
 
-const handler = NextAuth({
+// --------------------
+// Auth Options Export
+// --------------------
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -36,12 +40,14 @@ const handler = NextAuth({
           throw new Error("Email and password are required");
         }
 
+        // Find user by email
         const user: PrismaUser | null = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
         if (!user) throw new Error("No user found with this email");
 
+        // Validate password
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) throw new Error("Invalid password");
 
@@ -65,6 +71,11 @@ const handler = NextAuth({
       return session;
     },
   },
-});
+};
+
+// --------------------
+// NextAuth Handler
+// --------------------
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
