@@ -1,42 +1,55 @@
-// app/api/signup/route.ts
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
-
-// Define allowed roles
-const ALLOWED_ROLES = ["FOUNDER", "COLLABORATOR", "MEMBER"] as const;
-type Role = (typeof ALLOWED_ROLES)[number];
+import prisma from "@/lib/prismadb";
 
 export async function POST(req: Request) {
-  const { name, email, password, role } = await req.json();
+  try {
+    const { name, email, password } = await req.json();
 
-  if (!email || !password) {
-    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-  }
-
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return NextResponse.json(
-      { error: "Email already registered" },
-      { status: 400 }
-    );
-  }
-
-  const hashed = await bcrypt.hash(password, 10);
-
-  // Validate role or fallback to MEMBER
-  const validatedRole: Role = ALLOWED_ROLES.includes(role) ? role : "MEMBER";
-
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password: hashed,
-      role: validatedRole
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { error: "All fields are required" },
+        { status: 400 }
+      );
     }
-  });
 
-  return NextResponse.json({ message: "User created", user });
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "User already exists" },
+        { status: 400 }
+      );
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        message: "User created successfully",
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Signup error:", error);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+  }
 }
