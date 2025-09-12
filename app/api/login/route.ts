@@ -4,52 +4,42 @@ import prisma from "@/lib/prismadb";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const { email, password } = await req.json();
 
-    if (!name || !email || !password) {
+    if (!email || !password) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 }
       );
     }
 
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
+    // Find user by email
+    const user = await prisma.user.findUnique({
       where: { email },
     });
 
-    if (existingUser) {
+    if (!user) {
       return NextResponse.json(
-        { error: "User already exists" },
-        { status: 400 }
+        { error: "User not found" },
+        { status: 404 }
       );
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-      },
-    });
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return NextResponse.json(
+        { error: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
 
     return NextResponse.json(
-      {
-        message: "User created successfully",
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-        },
-      },
-      { status: 201 }
+      { message: "Login successful", user: { id: user.id, name: user.name, email: user.email } },
+      { status: 200 }
     );
   } catch (error) {
-    console.error("Signup error:", error);
+    console.error("Login error:", error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
