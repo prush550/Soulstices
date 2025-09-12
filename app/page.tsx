@@ -9,8 +9,7 @@ export default function SoulsticesLanding() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
       <Navbar /> 
-        </div>
-      
+            
       {/* Hero Section */}
       <section className="py-20 lg:py-32">
         <div className="container mx-auto px-4 lg:px-6">
