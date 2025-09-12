@@ -27,6 +27,19 @@ export default function SoulsticesLanding() {
             <Link href="/contact" className="text-slate-300 hover:text-teal-400 transition-colors">
               Contact
             </Link>
+            {/* New Signup / Login Tabs */}
+            <Link
+              href="/signup"
+              className="text-slate-300 hover:text-teal-400 transition-colors"
+              >
+              Signup
+            </Link>
+            <Link
+              href="/login"
+              className="text-slate-300 hover:text-teal-400 transition-colors"
+              >
+              Login
+            </Link>
             <Button className="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-0">
               Get Started
             </Button>
