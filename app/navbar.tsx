@@ -1,7 +1,7 @@
 // app/components/navbar.tsx
 import Link from "next/link";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth"; // ✅ corrected import
 import { SoulsticesLogo } from "./soulstices-logo";
 import { Button } from "./ui/button";
 
@@ -19,20 +19,55 @@ export default async function Navbar() {
         </div>
 
         <nav className="hidden md:flex items-center space-x-8">
-          <Link href="/services" className="text-slate-300 hover:text-teal-400 transition-colors">Services</Link>
-          <Link href="/about" className="text-slate-300 hover:text-teal-400 transition-colors">About</Link>
-          <Link href="/contact" className="text-slate-300 hover:text-teal-400 transition-colors">Contact</Link>
-          <Link href="/blog" className="text-slate-300 hover:text-teal-400 transition-colors">Blog</Link>
+          <Link
+            href="/services"
+            className="text-slate-300 hover:text-teal-400 transition-colors"
+          >
+            Services
+          </Link>
+          <Link
+            href="/about"
+            className="text-slate-300 hover:text-teal-400 transition-colors"
+          >
+            About
+          </Link>
+          <Link
+            href="/contact"
+            className="text-slate-300 hover:text-teal-400 transition-colors"
+          >
+            Contact
+          </Link>
+          <Link
+            href="/blog"
+            className="text-slate-300 hover:text-teal-400 transition-colors"
+          >
+            Blog
+          </Link>
 
           {!session?.user ? (
             <>
-              <Link href="/signup" className="text-slate-300 hover:text-teal-400 transition-colors">Signup</Link>
-              <Link href="/login" className="text-slate-300 hover:text-teal-400 transition-colors">Login</Link>
-              <Button className="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-0">Get Started</Button>
+              <Link
+                href="/signup"
+                className="text-slate-300 hover:text-teal-400 transition-colors"
+              >
+                Signup
+              </Link>
+              <Link
+                href="/login"
+                className="text-slate-300 hover:text-teal-400 transition-colors"
+              >
+                Login
+              </Link>
+              <Button className="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-0">
+                Get Started
+              </Button>
             </>
           ) : (
-            <Link href="/profile" className="text-slate-300 hover:text-teal-400 transition-colors">
-              {session.user.name || session.user.email} {/* show name or email */}
+            <Link
+              href="/profile"
+              className="text-slate-300 hover:text-teal-400 transition-colors"
+            >
+              {session.user.name || session.user.email}
             </Link>
           )}
         </nav>
