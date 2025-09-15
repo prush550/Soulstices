@@ -1,10 +1,10 @@
 import prisma from "@/lib/prismadb";
 
-interface Props {
+export default async function PublicProfilePage({
+  params,
+}: {
   params: { id: string };
-}
-
-export default async function PublicProfilePage({ params }: Props) {
+}) {
   const user = await prisma.user.findUnique({
     where: { id: params.id },
     select: {
