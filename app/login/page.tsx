@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -16,18 +17,17 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false, // Don't redirect automatically
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Login failed");
-      } else {
-        router.push("/"); // redirect to homepage after login
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.ok) {
+        router.push("/"); // Redirect to homepage after successful login
+        router.refresh(); // Force a refresh to update the session
       }
     } catch (err) {
       setError("Something went wrong");
@@ -43,11 +43,9 @@ export default function LoginPage() {
         className="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md"
       >
         <h1 className="text-2xl font-bold mb-6">Login</h1>
-
         {error && (
           <p className="bg-red-500 text-white p-2 rounded mb-4">{error}</p>
         )}
-
         <input
           type="email"
           placeholder="Email"
@@ -56,7 +54,6 @@ export default function LoginPage() {
           className="w-full p-3 mb-4 rounded bg-slate-700 focus:outline-none"
           required
         />
-
         <input
           type="password"
           placeholder="Password"
@@ -65,7 +62,6 @@ export default function LoginPage() {
           className="w-full p-3 mb-6 rounded bg-slate-700 focus:outline-none"
           required
         />
-
         <button
           type="submit"
           disabled={loading}
