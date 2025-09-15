@@ -1,89 +1,65 @@
-"use client";
+generator client {
+  provider = "prisma-client-js"
+}
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
-export default function SignupPage() {
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  role          String    @default("MEMBER") // FOUNDER, COLLABORATOR, MEMBER
+  emailVerified DateTime?
+  sessions      Session[]
+  accounts      Account[]
+  posts         Post[]
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  // New profile fields
+  hobbiesAndInterests String?   // Comma-separated or JSON string
+  bio                 String?   @db.VarChar(256)
+}
 
-    try {
-      const res = await fetch("/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-      const data = await res.json();
+  @@unique([provider, providerAccountId])
+}
 
-      if (!res.ok) {
-        setError(data.error || "Signup failed");
-      } else {
-        router.push("/login"); // redirect to login after signup
-      }
-    } catch (err) {
-      setError("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md"
-      >
-        <h1 className="text-2xl font-bold mb-6">Signup</h1>
-
-        {error && (
-          <p className="bg-red-500 text-white p-2 rounded mb-4">{error}</p>
-        )}
-
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full p-3 mb-4 rounded bg-slate-700 focus:outline-none"
-          required
-        />
-
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 mb-4 rounded bg-slate-700 focus:outline-none"
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-6 rounded bg-slate-700 focus:outline-none"
-          required
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 rounded font-semibold transition disabled:opacity-50"
-        >
-          {loading ? "Signing up..." : "Signup"}
-        </button>
-      </form>
-    </div>
-  );
+model Post {
+  id            String   @id @default(cuid())
+  title         String
+  excerpt       String
+  category      String
+  content       String
+  status        String   @default("draft") // draft | published | scheduled
+  publishDate   DateTime
+  featuredImage String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id])
 }
