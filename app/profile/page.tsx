@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import prisma from "@/lib/prisma"; // make sure you have prisma client setup
+import prisma from "@/lib/prismadb"; // make sure you have prisma client setup
 
 export default async function ProfilePage() {
   const session = await getServerSession();
