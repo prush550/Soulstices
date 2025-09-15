@@ -1,11 +1,18 @@
 import prisma from "@/lib/prismadb";
 
+interface User {
+  id: string;
+  name: string | null;
+  hobbiesAndInterests: string | null;
+  bio: string | null;
+}
+
 export default async function PublicProfilePage({
   params,
 }: {
   params: { id: string };
 }) {
-  const user = await prisma.user.findUnique({
+  const user: User | null = await prisma.user.findUnique({
     where: { id: params.id },
     select: {
       id: true,
@@ -32,10 +39,4 @@ export default async function PublicProfilePage({
         <p className="mb-4">{user.hobbiesAndInterests || "Not specified"}</p>
 
         <h2 className="text-lg font-semibold mb-2">About Me</h2>
-        <p className="text-gray-300">
-          {user.bio || "This user has not written a bio yet."}
-        </p>
-      </div>
-    </div>
-  );
-}
+        <p className="tex
