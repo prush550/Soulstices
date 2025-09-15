@@ -1,13 +1,13 @@
-// app/components/navbar.tsx
+"use client";
+
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth"; // ✅ corrected import
+import { useSession } from "next-auth/react";
 import { SoulsticesLogo } from "@/components/soulstices-logo";
 import { Button } from "@/components/ui/button";
 
-export default async function Navbar() {
-  const session = await getServerSession(authOptions);
-
+export default function Navbar() {
+  const { data: session } = useSession();
+  
   return (
     <header className="border-b border-slate-800 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
       <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
@@ -17,7 +17,6 @@ export default async function Navbar() {
             Soulstices
           </span>
         </div>
-
         <nav className="hidden md:flex items-center space-x-8">
           <Link
             href="/services"
@@ -43,7 +42,6 @@ export default async function Navbar() {
           >
             Blog
           </Link>
-
           {!session?.user ? (
             <>
               <Link
