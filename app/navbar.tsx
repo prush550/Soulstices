@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth"; // ✅ corrected import
-import { SoulsticesLogo } from "@/components/soulstices-logo;
+import { SoulsticesLogo } from "@/components/soulstices-logo";
 import { Button } from "./ui/button";
 
 export default async function Navbar() {
