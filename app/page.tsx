@@ -3,8 +3,8 @@ import { Heart, Brain, Users, ArrowRight, Mail, Phone } from "lucide-react"
 import Link from "next/link"
 import { SoulsticesLogo } from "@/components/soulstices-logo"
 import Navbar from "./navbar"
-import { HeroButtons } from "@/components/hero-buttons"
-import { CTASection } from "@/components/cta-section"
+import { HeroButtons } from "./components/hero-buttons"
+import { CTASection } from "./components/cta-section"
 
 export default function SoulsticesLanding() {
   return (
