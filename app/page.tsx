@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Heart, Brain, Users, ArrowRight, Mail, Phone } from "lucide-react"
 import Link from "next/link"
 import { SoulsticesLogo } from "@/components/soulstices-logo"
-import Navbar from "app/navbar"
+import Navbar from "./navbar"
 
 export default function SoulsticesLanding() {
   return (
