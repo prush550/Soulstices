@@ -1,4 +1,3 @@
-import React from "react"; // Needed for JSX parsing
 import prisma from "@/lib/prismadb";
 
 interface User {
@@ -8,14 +7,13 @@ interface User {
   bio: string | null;
 }
 
-// Explicitly mark this as a Server Component by keeping it async
-export default async function PublicProfilePage({
+// Server Component
+export default async function UserPage({
   params,
 }: {
   params: { id: string };
 }) {
-  // Fetch user from database
-  const user: User | null = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: params.id },
     select: {
       id: true,
@@ -25,7 +23,6 @@ export default async function PublicProfilePage({
     },
   });
 
-  // Handle user not found
   if (!user) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-slate-900 text-white">
@@ -34,7 +31,6 @@ export default async function PublicProfilePage({
     );
   }
 
-  // Render user profile
   return (
     <div className="flex justify-center items-center min-h-screen bg-slate-900 text-white">
       <div className="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md">
