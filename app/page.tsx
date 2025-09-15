@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Heart, Brain, Users, ArrowRight, Mail, Phone } from "lucide-react"
 import Link from "next/link"
 import { SoulsticesLogo } from "@/components/soulstices-logo"
 import Navbar from "./navbar"
+import { HeroButtons } from "@/components/hero-buttons"
+import { CTASection } from "@/components/cta-section"
 
 export default function SoulsticesLanding() {
   return (
@@ -27,22 +27,7 @@ export default function SoulsticesLanding() {
                 understanding, and encouragement on their journey toward mental wellness.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-0 px-8 py-3"
-              >
-                Start Your Journey
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white px-8 py-3 bg-transparent"
-              >
-                Learn More
-              </Button>
-            </div>
+            <HeroButtons />
           </div>
         </div>
       </section>
@@ -234,16 +219,7 @@ export default function SoulsticesLanding() {
               Take the first step in your Soulstice journey. Join our peer support community and find the encouragement
               you need.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="bg-slate-800 border-slate-600 text-slate-100 placeholder:text-slate-400"
-              />
-              <Button className="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white border-0 whitespace-nowrap">
-                Get Started
-              </Button>
-            </div>
+            <CTASection />
             <p className="text-slate-400 text-sm">
               Join hundreds of individuals who have transformed their lives with Soulstices
             </p>
