@@ -17,6 +17,10 @@ model User {
   sessions      Session[]
   accounts      Account[]
   posts         Post[]
+
+  // New profile fields
+  hobbiesAndInterests String?   // Comma-separated or JSON string
+  bio                 String?   @db.VarChar(256)
 }
 
 model Account {
@@ -33,7 +37,7 @@ model Account {
   id_token          String?
   session_state     String?
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([provider, providerAccountId])
 }
 
@@ -45,7 +49,6 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// NEW: Post model
 model Post {
   id            String   @id @default(cuid())
   title         String
