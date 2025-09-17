@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
@@ -13,14 +12,37 @@ export default function ProfilePage() {
     password: "",
   });
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch complete user profile from database
+  const fetchUserProfile = async () => {
+    if (!session?.user?.email) return;
+    
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      
+      if (res.ok) {
+        const userData = await res.json();
+        setForm((prev) => ({
+          ...prev,
+          name: userData.name || "",
+          email: userData.email || "",
+          hobbiesAndInterests: userData.hobbiesAndInterests || "",
+          bio: userData.bio || "",
+          // Don't populate password field
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+    }
+  };
 
   useEffect(() => {
-    if (session?.user) {
-      setForm((prev) => ({
-        ...prev,
-        name: session.user.name || "",
-        email: session.user.email || "",
-      }));
+    if (session?.user?.email) {
+      fetchUserProfile();
     }
   }, [session]);
 
@@ -35,18 +57,31 @@ export default function ProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
+    setIsLoading(true);
 
-    const res = await fetch("/api/user/update", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch("/api/user/update", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    const data = await res.json();
-    if (res.ok) {
-      setMessage("Profile updated successfully!");
-    } else {
-      setMessage(data.error || "Failed to update profile");
+      const data = await res.json();
+      
+      if (res.ok) {
+        setMessage("Profile updated successfully!");
+        // Clear password field after successful update
+        setForm(prev => ({ ...prev, password: "" }));
+        // Refetch the updated profile data
+        await fetchUserProfile();
+      } else {
+        setMessage(data.error || "Failed to update profile");
+      }
+    } catch (error) {
+      setMessage("Failed to update profile");
+      console.error("Update error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,8 +92,12 @@ export default function ProfilePage() {
         className="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md"
       >
         <h1 className="text-2xl font-bold mb-6">My Profile</h1>
-
-        {message && <p className="mb-4">{message}</p>}
+        
+        {message && (
+          <p className={`mb-4 ${message.includes('successfully') ? 'text-green-400' : 'text-red-400'}`}>
+            {message}
+          </p>
+        )}
 
         <label className="block mb-2">Name</label>
         <input
@@ -108,9 +147,10 @@ export default function ProfilePage() {
 
         <button
           type="submit"
-          className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 rounded font-semibold"
+          disabled={isLoading}
+          className="w-full bg-teal-500 hover:bg-teal-600 disabled:bg-teal-700 text-white py-3 rounded font-semibold"
         >
-          Save Changes
+          {isLoading ? "Saving..." : "Save Changes"}
         </button>
       </form>
     </div>
