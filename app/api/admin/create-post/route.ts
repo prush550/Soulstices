@@ -1,65 +1,85 @@
-import { type NextRequest, NextResponse } from "next/server"
-import fs from "fs"
-import path from "path"
+// app/api/admin/create-post/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prismadb";
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, excerpt, category, content, date, status, publishDate, featuredImage } = await request.json()
+    // Check authentication and authorization
+    const session = await getServerSession(authOptions);
+    
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user is FOUNDER
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user || user.role !== "FOUNDER") {
+      return NextResponse.json({ error: "Access denied. Founder role required." }, { status: 403 });
+    }
+
+    const { title, excerpt, category, content, status, publishDate, featuredImage } = await request.json();
 
     // Validate required fields
     if (!title || !excerpt || !category || !content) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      return NextResponse.json({ error: "Missing required fields: title, excerpt, category, and content are required" }, { status: 400 });
     }
 
     // Validate scheduled posts have publish date
     if (status === "scheduled" && !publishDate) {
-      return NextResponse.json({ error: "Scheduled posts must have a publish date" }, { status: 400 })
+      return NextResponse.json({ error: "Scheduled posts must have a publish date" }, { status: 400 });
     }
 
-    // Create slug from title
-    const slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "")
-
-    // Create the blog post content with all metadata
-    const blogPostContent = `---
-title: "${title}"
-date: "${date}"
-excerpt: "${excerpt}"
-category: "${category}"
-status: "${status || "published"}"
-${publishDate ? `publishDate: "${publishDate}"` : ""}
-${featuredImage ? `featuredImage: "${featuredImage}"` : ""}
----
-
-${content}
-`
-
-    // Ensure the content/blog directory exists
-    const blogDir = path.join(process.cwd(), "content", "blog")
-    if (!fs.existsSync(blogDir)) {
-      fs.mkdirSync(blogDir, { recursive: true })
+    // Set publish date based on status
+    let finalPublishDate = new Date();
+    if (status === "scheduled" && publishDate) {
+      finalPublishDate = new Date(publishDate);
+    } else if (status === "draft") {
+      // For drafts, use a future date so they don't show as published
+      finalPublishDate = new Date("2099-01-01");
     }
 
-    // Write the file
-    const filePath = path.join(blogDir, `${slug}.mdx`)
+    // Create the blog post in database
+    const newPost = await prisma.post.create({
+      data: {
+        title,
+        excerpt,
+        category,
+        content,
+        status: status || "draft",
+        publishDate: finalPublishDate,
+        featuredImage: featuredImage || null,
+        authorId: user.id,
+      }
+    });
 
-    // Check if file already exists
-    if (fs.existsSync(filePath)) {
-      return NextResponse.json({ error: "A blog post with this title already exists" }, { status: 409 })
-    }
-
-    fs.writeFileSync(filePath, blogPostContent, "utf-8")
+    console.log("✅ Blog post created:", {
+      id: newPost.id,
+      title: newPost.title,
+      status: newPost.status,
+      publishDate: newPost.publishDate
+    });
 
     return NextResponse.json({
       message: "Blog post created successfully",
-      slug,
-      status,
-      filePath: `content/blog/${slug}.mdx`,
-    })
+      post: {
+        id: newPost.id,
+        title: newPost.title,
+        status: newPost.status,
+        publishDate: newPost.publishDate,
+        category: newPost.category
+      }
+    });
+
   } catch (error) {
-    console.error("Error creating blog post:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Error creating blog post:", error);
+    return NextResponse.json({ 
+      error: "Internal server error",
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 });
   }
 }
