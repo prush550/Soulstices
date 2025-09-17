@@ -1,90 +1,55 @@
-import { type NextRequest, NextResponse } from "next/server"
-import fs from "fs"
-import path from "path"
+// app/api/admin/delete-post/[slug]/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prismadb";
+
+// Generate slug from title (same as in posts API)
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
 
 export async function DELETE(
-  request: NextRequest, 
+  request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    // Await the params Promise to get the actual parameters
-    const resolvedParams = await params
-    const { slug } = resolvedParams
+    const { slug } = await params;
+    const session = await getServerSession(authOptions);
     
-    // Validate slug parameter
-    if (!slug || typeof slug !== 'string') {
-      return NextResponse.json({ error: "Invalid slug parameter" }, { status: 400 })
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    // Sanitize slug to prevent directory traversal attacks
-    const sanitizedSlug = slug.replace(/[^a-zA-Z0-9-_]/g, '')
-    if (sanitizedSlug !== slug) {
-      return NextResponse.json({ error: "Invalid slug format" }, { status: 400 })
+
+    // Check if user has admin privileges
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user || !["FOUNDER", "COLLABORATOR"].includes(user.role)) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
-    
-    const contentDir = path.join(process.cwd(), "content", "blog")
-    const filePath = path.join(contentDir, `${sanitizedSlug}.mdx`)
-    
-    // Ensure the file path is within the content directory (security check)
-    const normalizedFilePath = path.normalize(filePath)
-    const normalizedContentDir = path.normalize(contentDir)
-    
-    if (!normalizedFilePath.startsWith(normalizedContentDir)) {
-      return NextResponse.json({ error: "Invalid file path" }, { status: 400 })
+
+    // Find post by matching slug to generated slug from title
+    const posts = await prisma.post.findMany();
+    const post = posts.find(p => generateSlug(p.title) === slug);
+
+    if (!post) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
-    
-    // Check if file exists
-    if (!fs.existsSync(normalizedFilePath)) {
-      return NextResponse.json({ error: "Blog post not found" }, { status: 404 })
-    }
-    
-    // Verify it's actually a file (not a directory)
-    const stats = fs.statSync(normalizedFilePath)
-    if (!stats.isFile()) {
-      return NextResponse.json({ error: "Invalid file type" }, { status: 400 })
-    }
-    
-    // Get file info before deletion for logging
-    const fileSize = stats.size
-    const lastModified = stats.mtime
-    
-    // Delete the file
-    fs.unlinkSync(normalizedFilePath)
-    
-    // Log the deletion for audit purposes
-    console.log(`Blog post deleted: ${slug} (size: ${fileSize} bytes, last modified: ${lastModified})`)
-    
-    return NextResponse.json({ 
-      message: "Blog post deleted successfully",
-      slug: sanitizedSlug,
-      deletedAt: new Date().toISOString()
-    })
+
+    // Delete the post
+    await prisma.post.delete({
+      where: { id: post.id }
+    });
+
+    return NextResponse.json({ message: "Post deleted successfully" });
+
   } catch (error) {
-    console.error("Error deleting blog post:", error)
-    
-    // More specific error handling
-    if (error instanceof Error) {
-      // Handle specific file system errors
-      if (error.message.includes('ENOENT')) {
-        return NextResponse.json(
-          { error: "Blog post not found" }, 
-          { status: 404 }
-        )
-      }
-      
-      if (error.message.includes('EACCES') || error.message.includes('EPERM')) {
-        return NextResponse.json(
-          { error: "Permission denied - unable to delete file" }, 
-          { status: 403 }
-        )
-      }
-      
-      return NextResponse.json(
-        { error: `Failed to delete blog post: ${error.message}` }, 
-        { status: 500 }
-      )
-    }
-    
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Error deleting post:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
