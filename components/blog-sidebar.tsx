@@ -172,7 +172,7 @@ export function BlogSidebar({ posts }: BlogSidebarProps) {
                   Create New Post
                 </Link>
                 <Link
-                  href="/admin/manage-posts"
+                  href="/admin/manage"
                   className="block text-sm text-gray-600 hover:text-blue-600 transition-colors"
                 >
                   Manage Posts
