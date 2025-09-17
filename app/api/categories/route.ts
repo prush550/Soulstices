@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getPublishedPosts, getCategories } from '@/lib/mdx'
+import { getPublishedPosts, getCategories } from '@/lib/database-blog'
 
 export async function GET() {
   try {
