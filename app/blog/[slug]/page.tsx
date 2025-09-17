@@ -25,8 +25,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound()
   }
 
-  const post = getPostBySlug(slug)
-  const allPosts = getAllPosts()
+  const post = await getPostBySlug(slug)
+  const allPosts = await getAllPosts()
 
   if (!post) {
     notFound()
