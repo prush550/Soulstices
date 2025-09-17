@@ -1,4 +1,4 @@
-import { getPostBySlug, getAllPosts } from "@/lib/mdx"
+import { getPostBySlug, getAllPosts } from "@/lib/database-blog"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
