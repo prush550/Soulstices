@@ -261,7 +261,7 @@ export default function ManageBlogPage() {
               </h1>
               <p className="text-slate-400">View, edit, and manage your blog posts</p>
             </div>
-            <Link href="/admin">
+            <Link href="/admin/create-post">
               <Button className="bg-gradient-to-r from-teal-500 to-purple-600 hover:from-teal-600 hover:to-purple-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Create New Post
