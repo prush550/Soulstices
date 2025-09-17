@@ -73,7 +73,7 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
           <Link href="/admin/create-post" className="btn">
             Create Post
           </Link>
-          <Link href="/admin/manage-posts" className="btn">
+          <Link href="/admin/manage" className="btn">
             Manage Posts
           </Link>
         </div>
