@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPostBySlug } from '@/lib/mdx'
+import { getPostBySlug } from '@/lib/database-blog'
 
 export async function GET(
   request: NextRequest,
