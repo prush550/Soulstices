@@ -65,7 +65,8 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
   const renderAdminPanel = () => {
     if (
       status === "authenticated" &&
-      (session?.user.role === "FOUNDER" || session?.user.role === "COLLABORATOR")
+      session?.user &&
+      ["FOUNDER", "COLLABORATOR"].includes((session.user as any)?.role)
     ) {
       return (
         <div className="mt-8 flex flex-col gap-2">
