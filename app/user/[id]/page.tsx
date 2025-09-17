@@ -11,10 +11,13 @@ interface User {
 export default async function UserPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>; // Changed: params is now a Promise
 }) {
+  // Changed: await the params before using them
+  const { id } = await params;
+  
   const user = await prisma.user.findUnique({
-    where: { id: params.id },
+    where: { id }, // Changed: use the awaited id
     select: {
       id: true,
       name: true,
@@ -35,10 +38,8 @@ export default async function UserPage({
     <div className="flex justify-center items-center min-h-screen bg-slate-900 text-white">
       <div className="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md">
         <h1 className="text-3xl font-bold mb-4">{user.name}</h1>
-
         <h2 className="text-lg font-semibold mb-2">Hobbies & Interests</h2>
         <p className="mb-4">{user.hobbiesAndInterests || "Not specified"}</p>
-
         <h2 className="text-lg font-semibold mb-2">About Me</h2>
         <p className="text-gray-300">{user.bio || "This user has not written a bio yet."}</p>
       </div>
