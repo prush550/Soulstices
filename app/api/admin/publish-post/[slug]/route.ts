@@ -1,64 +1,59 @@
-import { type NextRequest, NextResponse } from "next/server"
-import fs from "fs"
-import path from "path"
-import matter from "gray-matter"
+// app/api/admin/publish-post/[slug]/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prismadb";
+
+// Generate slug from title (same as in posts API)
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
 
 export async function POST(
-  request: NextRequest, 
+  request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    // Await the params Promise to get the actual parameters
-    const resolvedParams = await params
-    const { slug } = resolvedParams
+    const { slug } = await params;
+    const session = await getServerSession(authOptions);
     
-    // Validate slug parameter
-    if (!slug || typeof slug !== 'string') {
-      return NextResponse.json({ error: "Invalid slug parameter" }, { status: 400 })
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    const filePath = path.join(process.cwd(), "content", "blog", `${slug}.mdx`)
-    
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      return NextResponse.json({ error: "Blog post not found" }, { status: 404 })
+
+    // Check if user has admin privileges
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    });
+
+    if (!user || !["FOUNDER", "COLLABORATOR"].includes(user.role)) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
-    
-    // Read the existing file
-    const fileContents = fs.readFileSync(filePath, "utf-8")
-    const { data, content } = matter(fileContents)
-    
-    // Update the status to published and set publish date
-    const updatedData = {
-      ...data,
-      status: "published",
-      publishDate: new Date().toISOString(),
-      // Ensure date is set if not already present
-      date: data.date || new Date().toISOString(),
+
+    // Find post by matching slug to generated slug from title
+    const posts = await prisma.post.findMany();
+    const post = posts.find(p => generateSlug(p.title) === slug);
+
+    if (!post) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
-    
-    // Create the updated content
-    const updatedContent = matter.stringify(content, updatedData)
-    
-    // Write the updated file
-    fs.writeFileSync(filePath, updatedContent, "utf-8")
-    
-    return NextResponse.json({
-      message: "Blog post published successfully",
-      slug,
-      publishDate: updatedData.publishDate,
-    })
+
+    // Update post to published status
+    await prisma.post.update({
+      where: { id: post.id },
+      data: {
+        status: "published",
+        publishDate: new Date() // Set publish date to now
+      }
+    });
+
+    return NextResponse.json({ message: "Post published successfully" });
+
   } catch (error) {
-    console.error("Error publishing blog post:", error)
-    
-    // More specific error handling
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: `Failed to publish blog post: ${error.message}` }, 
-        { status: 500 }
-      )
-    }
-    
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("Error publishing post:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
