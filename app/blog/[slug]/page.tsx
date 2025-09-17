@@ -233,7 +233,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
 
 // Generate static params for build optimization
 export async function generateStaticParams() {
-  const posts = await getAllPosts('published')
+  const posts = getAllPosts('published')
   
   return posts.map((post) => ({
     slug: post.slug,
