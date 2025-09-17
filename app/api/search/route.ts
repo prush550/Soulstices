@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPublishedPosts, searchPosts } from '@/lib/mdx'
+import { getPublishedPosts, searchPosts } from '@/lib/database-blog'
 
 export async function GET(request: NextRequest) {
   try {
