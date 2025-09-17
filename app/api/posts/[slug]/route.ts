@@ -22,7 +22,7 @@ export async function GET(
     }
     
     // Get the post
-    const post = getPostBySlug(sanitizedSlug)
+    const post = await getPostBySlug(sanitizedSlug)
     
     if (!post) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
