@@ -54,6 +54,27 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
   }
 }
 
+// Get all posts for admin (including drafts and scheduled)
+export async function getAllPostsForAdmin(): Promise<BlogPost[]> {
+  try {
+    const posts = await prisma.post.findMany({
+      include: {
+        author: {
+          select: { name: true }
+        }
+      },
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
+
+    return convertToPublishedPosts(posts);
+  } catch (error) {
+    console.error("Error fetching all posts for admin:", error);
+    return [];
+  }
+}
+
 // Get all published posts (same as getPublishedPosts but different name for compatibility)
 export async function getAllPosts(): Promise<BlogPost[]> {
   try {
