@@ -3,7 +3,7 @@ import { getPublishedPosts, getCategories } from '@/lib/database-blog'
 
 export async function GET() {
   try {
-    const posts = getPublishedPosts()
+    const posts = await getPublishedPosts()
     const categories = getCategories(posts)
     return NextResponse.json(categories)
   } catch (error) {
