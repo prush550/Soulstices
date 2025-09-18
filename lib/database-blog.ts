@@ -100,6 +100,38 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   }
 }
 
+// Search posts by query and optional category filter
+export function searchPosts(posts: BlogPost[], query: string, category?: string): BlogPost[] {
+  if (!query.trim() && !category) {
+    return posts;
+  }
+
+  const normalizedQuery = query.toLowerCase().trim();
+  
+  return posts.filter(post => {
+    // Category filter
+    if (category && post.category !== category) {
+      return false;
+    }
+    
+    // If no search query, return all posts in the category
+    if (!normalizedQuery) {
+      return true;
+    }
+    
+    // Search in title, excerpt, content, and author
+    const searchableText = [
+      post.title,
+      post.excerpt,
+      post.content,
+      post.author,
+      post.category
+    ].join(' ').toLowerCase();
+    
+    return searchableText.includes(normalizedQuery);
+  });
+}
+
 // Get categories with post counts
 export function getCategories(posts: BlogPost[]): { name: string; count: number }[] {
   const categoryMap = new Map<string, number>();
