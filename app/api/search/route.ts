@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get('q') || ''
     const category = searchParams.get('category') || undefined
     
-    const allPosts = getPublishedPosts()
+    const allPosts = await getPublishedPosts() // Added 'await' here
     const results = searchPosts(allPosts, query, category)
     
     return NextResponse.json(results)
