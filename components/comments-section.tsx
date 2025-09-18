@@ -25,19 +25,41 @@ export function CommentsSection({ postSlug }: CommentsSectionProps) {
   const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState({ author: "", content: "" })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
-  // Load comments from localStorage on component mount
+  // Ensure we're on the client side before accessing localStorage
   useEffect(() => {
-    const savedComments = localStorage.getItem(`comments-${postSlug}`)
-    if (savedComments) {
-      setComments(JSON.parse(savedComments))
+    setIsClient(true)
+  }, [])
+
+  // Load comments from localStorage on component mount (client-side only)
+  useEffect(() => {
+    if (!isClient) return
+    
+    try {
+      const savedComments = localStorage.getItem(`comments-${postSlug}`)
+      if (savedComments) {
+        const parsedComments = JSON.parse(savedComments)
+        // Validate the data structure
+        if (Array.isArray(parsedComments)) {
+          setComments(parsedComments)
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load comments from localStorage:', error)
     }
-  }, [postSlug])
+  }, [postSlug, isClient])
 
-  // Save comments to localStorage whenever comments change
+  // Save comments to localStorage whenever comments change (client-side only)
   useEffect(() => {
-    localStorage.setItem(`comments-${postSlug}`, JSON.stringify(comments))
-  }, [comments, postSlug])
+    if (!isClient || comments.length === 0) return
+    
+    try {
+      localStorage.setItem(`comments-${postSlug}`, JSON.stringify(comments))
+    } catch (error) {
+      console.warn('Failed to save comments to localStorage:', error)
+    }
+  }, [comments, postSlug, isClient])
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,7 +74,7 @@ export function CommentsSection({ postSlug }: CommentsSectionProps) {
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const comment: Comment = {
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // More unique ID
       author: newComment.author.trim(),
       content: newComment.content.trim(),
       timestamp: new Date().toISOString(),
@@ -64,13 +86,36 @@ export function CommentsSection({ postSlug }: CommentsSectionProps) {
   }
 
   const formatDate = (timestamp: string) => {
-    return new Date(timestamp).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
+    try {
+      return new Date(timestamp).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    } catch (error) {
+      return "Invalid date"
+    }
+  }
+
+  // Show loading state until client-side hydration is complete
+  if (!isClient) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2">
+          <MessageCircle className="w-6 h-6 text-teal-400" />
+          <h3 className="text-2xl font-bold text-slate-100">Comments</h3>
+        </div>
+        <Card className="bg-slate-800 border-slate-700">
+          <CardContent className="p-8 text-center">
+            <div className="animate-pulse">
+              <div className="h-4 bg-slate-700 rounded w-3/4 mx-auto"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -85,6 +130,7 @@ export function CommentsSection({ postSlug }: CommentsSectionProps) {
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
           <CardTitle className="text-slate-100 text-lg">Leave a Comment</CardTitle>
+          <p className="text-sm text-slate-400">Comments are stored locally in your browser for this demo.</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmitComment} className="space-y-4">
@@ -144,7 +190,7 @@ export function CommentsSection({ postSlug }: CommentsSectionProps) {
                 <div className="flex items-start space-x-4">
                   <Avatar className="w-10 h-10">
                     <AvatarFallback className="bg-gradient-to-r from-teal-500 to-purple-600 text-white">
-                      {comment.author.charAt(0).toUpperCase()}
+                      {comment.author?.charAt(0)?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
