@@ -54,17 +54,23 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
   }
 }
 
-// Get all posts (for admin)
+// Get all published posts (same as getPublishedPosts but different name for compatibility)
 export async function getAllPosts(): Promise<BlogPost[]> {
   try {
     const posts = await prisma.post.findMany({
+      where: {
+        status: "published",
+        publishDate: {
+          lte: new Date() // Only posts with publish date <= now
+        }
+      },
       include: {
         author: {
           select: { name: true }
         }
       },
       orderBy: {
-        createdAt: "desc"
+        publishDate: "desc"
       }
     });
 
