@@ -23,6 +23,23 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
   const [postsToShow, setPostsToShow] = useState(6);
   const { data: session, status } = useSession();
 
+  const clientSearchPosts = (posts: BlogPost[], query: string, category: string): BlogPost[] => {
+    let filtered = posts;
+
+    if (category) filtered = filtered.filter((post) => post.category === category);
+    if (query) {
+      const searchTerm = query.toLowerCase();
+      filtered = filtered.filter(
+        (post) =>
+          post.title.toLowerCase().includes(searchTerm) ||
+          post.excerpt.toLowerCase().includes(searchTerm) ||
+          post.category.toLowerCase().includes(searchTerm),
+      );
+    }
+
+    return filtered;
+  };
+
   const handleSearch = useCallback(
     (query: string, category: string) => {
       setSearchQuery(query);
