@@ -1,242 +1,129 @@
-import { getPostBySlug, getPublishedPosts } from "@/lib/database-blog"
-import { notFound } from "next/navigation"
+"use client"
+
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Calendar, User, Clock } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { Calendar, User, ArrowLeft } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { SoulsticesLogo } from "@/components/soulstices-logo"
-import { BlogSidebar } from "@/components/blog-sidebar"
-import { CommentsSection } from "@/components/comments-section"
+import type { BlogPost } from "@/lib/types"
 
-interface BlogPostPageProps {
-  params: Promise<{
-    slug: string
-  }>
+interface BlogSearchResultsProps {
+  posts: BlogPost[]
+  searchQuery: string
+  selectedCategory: string
+  totalPosts: number
 }
 
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  // Await the params Promise to get the actual parameters
-  const resolvedParams = await params
-  const { slug } = resolvedParams
+function highlightSearchTerm(text: string, searchTerm: string): string {
+  if (!searchTerm || !text) return text
 
-  // Validate slug
-  if (!slug || typeof slug !== 'string') {
-    notFound()
-  }
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi")
+  return text.replace(regex, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>')
+}
 
-  // Use direct database calls instead of fetch
-  const post = await getPostBySlug(slug)
-  
-  if (!post) {
-    notFound()
-  }
+export default function BlogSearchResults({
+  posts,
+  searchQuery,
+  selectedCategory,
+  totalPosts,
+}: BlogSearchResultsProps) {
+  const hasActiveSearch = searchQuery || selectedCategory
 
-  // Only show published posts
-  if (post.status !== 'published') {
-    notFound()
-  }
-
-  // Check if post should be published yet using publishDate
-  const now = new Date()
-  const publishDate = new Date(post.publishDate || post.date)
-  
-  if (publishDate > now) {
-    notFound()
-  }
-
-  // Get all published posts for sidebar and related posts
-  const allPosts = await getPublishedPosts()
-
-  const relatedPosts = allPosts
-    .filter((p) => p.category === post.category && p.slug !== post.slug)
-    .slice(0, 3)
-
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
-        <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <SoulsticesLogo size={32} />
-            <span className="text-xl font-bold bg-gradient-to-r from-teal-400 to-purple-400 bg-clip-text text-transparent">
-              Soulstices
-            </span>
-          </Link>
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/#services" className="text-slate-300 hover:text-teal-400 transition-colors">
-              Services
-            </Link>
-            <Link href="/about" className="text-slate-300 hover:text-teal-400 transition-colors">
-              About
-            </Link>
-            <Link href="/contact" className="text-slate-300 hover:text-teal-400 transition-colors">
-              Contact
-            </Link>
-            <Link href="/blog" className="text-teal-400 font-medium">
-              Blog
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 lg:px-6 py-12">
-        <div className="flex flex-col lg:flex-row gap-12">
-          {/* Main Content */}
-          <article className="flex-1">
-            {/* Back to Blog */}
-            <Link
-              href="/blog"
-              className="inline-flex items-center text-slate-400 hover:text-teal-400 transition-colors mb-8"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Blog
-            </Link>
-
-            {/* Post Header */}
-            <div className="mb-8">
-              <div className="flex items-center space-x-4 mb-4">
-                <Badge className="bg-gradient-to-r from-teal-500 to-purple-600 text-white border-0">
-                  {post.category}
-                </Badge>
-                <div className="flex items-center space-x-4 text-sm text-slate-400">
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      {new Date(post.publishDate || post.date).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <User className="w-4 h-4" />
-                    <span>{post.author || "Soulstices Team"}</span>
-                  </div>
-                </div>
-              </div>
-
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-slate-100 to-slate-300 bg-clip-text text-transparent">
-                {post.title}
-              </h1>
-
-              <p className="text-xl text-slate-400 leading-relaxed mb-8">{post.excerpt}</p>
-
-              {/* Featured Image */}
-              <div className="relative h-64 md:h-96 rounded-xl overflow-hidden mb-8">
-                <Image
-                  src={post.featuredImage || `/placeholder.png?height=400&width=800&text=${encodeURIComponent(post.title)}`}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </div>
-
-            {/* Post Content */}
-            <div className="prose prose-invert prose-slate max-w-none mb-12">
-              <div className="text-slate-300 leading-relaxed space-y-6">
-                {post.content.split("\n\n").map((paragraph, index) => (
-                  <p key={index} className="text-lg leading-relaxed">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </div>
-
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="mb-8">
-                <h4 className="text-lg font-semibold mb-3 text-slate-300">Tags</h4>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline" className="text-slate-400 border-slate-600">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Related Posts */}
-            {relatedPosts.length > 0 && (
-              <div className="mb-12">
-                <h3 className="text-2xl font-bold mb-6 text-slate-100">Related Posts</h3>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {relatedPosts.map((relatedPost) => (
-                    <Card
-                      key={relatedPost.slug}
-                      className="bg-slate-800 border-slate-700 hover:border-teal-500/50 transition-all duration-300 group"
-                    >
-                      <div className="relative h-32 overflow-hidden">
-                        <Image
-                          src={relatedPost.featuredImage || `/placeholder_image.png?height=200&width=300&text=${encodeURIComponent(relatedPost.title)}`}
-                          alt={relatedPost.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <Badge className="mb-2 text-xs bg-slate-700 text-slate-300">{relatedPost.category}</Badge>
-                        <h4 className="font-semibold text-slate-100 group-hover:text-teal-400 transition-colors mb-2 line-clamp-2">
-                          <Link href={`/blog/${relatedPost.slug}`}>{relatedPost.title}</Link>
-                        </h4>
-                        <p className="text-sm text-slate-400 line-clamp-2">{relatedPost.excerpt}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Comments Section */}
-            <CommentsSection postSlug={post.slug} />
-          </article>
-
-          {/* Sidebar */}
-          <div className="lg:w-80">
-            <BlogSidebar posts={allPosts} />
-          </div>
+    if (posts.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-gray-500 mb-4">
+          {hasActiveSearch ? (
+            <>
+              <h3 className="text-lg font-medium mb-2">No posts found</h3>
+              <p>No posts match your search criteria. Try adjusting your search terms or browse all posts.</p>
+            </>
+          ) : (
+            <>
+              <h3 className="text-lg font-medium mb-2">No posts available</h3>
+              <p>There are no blog posts to display at the moment.</p>
+            </>
+          )}
         </div>
       </div>
+    )
+  }
+
+    return (
+    <div>
+      {/* Results Summary */}
+      {hasActiveSearch && (
+        <div className="mb-6 text-sm text-gray-600">
+          Showing {posts.length} of {totalPosts} posts
+          {searchQuery && ` for "${searchQuery}"`}
+          {selectedCategory && ` in "${selectedCategory}"`}
+                  </div>
+      )}
+
+      {/* Posts Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => (
+          <Card key={post.slug} className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="p-0">
+              {post.featuredImage ? (
+                <div className="relative h-48 w-full">
+                  <Image
+                                      src={post.featuredImage || "/placeholder.svg"}
+                    alt={post.title}
+                    fill
+                    className="object-cover rounded-t-lg"
+                  />
+                </div>
+              ) : (
+                <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 rounded-t-lg flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <div className="text-4xl mb-2">📝</div>
+                    <div className="text-sm">Blog Post</div>
+                  </div>
+                </div>
+              )}
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Badge variant="secondary" className="text-xs">
+                                  {post.category}
+                </Badge>
+                <div className="flex items-center text-xs text-gray-500">
+                  <Calendar className="w-3 h-3 mr-1" />
+                  {new Date(post.date).toLocaleDateString()}
+                                  </div>
+              </div>
+
+              <Link href={`/blog/${post.slug}`} className="group">
+                <h3
+                  className="font-semibold text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-2"
+                  dangerouslySetInnerHTML={{
+                    __html: highlightSearchTerm(post.title, searchQuery),
+                  }}
+                                  />
+              </Link>
+
+              <p
+                className="text-gray-600 text-sm mb-4 line-clamp-3"
+                dangerouslySetInnerHTML={{
+                  __html: highlightSearchTerm(post.excerpt, searchQuery),
+                }}
+              />
+
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center">
+                  <User className="w-3 h-3 mr-1" />
+                  {post.author}
+                                  </div>
+                <div className="flex items-center">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {Math.ceil(post.content.split(" ").length / 200)} min read
+                                  </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+              </div>
     </div>
   )
-}
-
-// Generate metadata for SEO
-export async function generateMetadata({ params }: BlogPostPageProps) {
-  const resolvedParams = await params
-  const { slug } = resolvedParams
-  
-  const post = await getPostBySlug(slug)
-  
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-      description: 'The requested blog post could not be found.'
-    }
-  }
-  
-  return {
-    title: `${post.title} | Soulstices Blog`,
-    description: post.excerpt,
-    openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      type: 'article',
-      publishedTime: post.publishDate || post.date,
-      authors: [post.author || 'Soulstices Team'],
-      tags: post.tags,
-    },
-  }
-}
-
-// Generate static params for build optimization
-export async function generateStaticParams() {
-  const posts = await getPublishedPosts()
-  
-  return posts.map((post) => ({
-    slug: post.slug,
-  }))
 }
