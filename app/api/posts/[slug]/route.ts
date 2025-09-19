@@ -33,11 +33,11 @@ export async function GET(
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
     }
     
-    // Check if post should be published yet (for scheduled posts)
+    // Check if post should be published yet using publishDate (not date/createdAt)
     const now = new Date()
-    const postDate = new Date(post.date)
+    const publishDate = new Date(post.publishDate || post.date)
     
-    if (postDate > now) {
+    if (publishDate > now) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
     }
     
