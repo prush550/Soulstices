@@ -1,10 +1,11 @@
 import { getPublishedPosts, getPostBySlug } from "@/lib/database-blog";
+import type { BlogPost } from "@/lib/types";
 
 export default async function ErrorDebugPage() {
-  let postsError = null;
-  let posts = [];
-  let postBySlugError = null;
-  let testPost = null;
+  let postsError: string | null = null;
+  let posts: BlogPost[] = [];
+  let postBySlugError: string | null = null;
+  let testPost: BlogPost | null = null;
 
   // Test getPublishedPosts function
   try {
