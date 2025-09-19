@@ -15,37 +15,18 @@ interface BlogPageClientProps {
   initialCategories: { name: string; count: number }[];
 }
 
-function clientSearchPosts(posts: BlogPost[], query: string, category: string): BlogPost[] {
-  let filtered = posts;
-
-  if (category) filtered = filtered.filter((post) => post.category === category);
-  if (query) {
-    const searchTerm = query.toLowerCase();
-    filtered = filtered.filter(
-      (post) =>
-        post.title.toLowerCase().includes(searchTerm) ||
-        post.excerpt.toLowerCase().includes(searchTerm) ||
-        post.category.toLowerCase().includes(searchTerm),
-    );
-  }
-
-  return filtered;
-}
-
 export default function BlogPageClient({ initialPosts, initialCategories }: BlogPageClientProps) {
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(initialPosts);
   const [displayedPosts, setDisplayedPosts] = useState<BlogPost[]>(initialPosts.slice(0, 6));
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [postsToShow, setPostsToShow] = useState(6);
-
   const { data: session, status } = useSession();
 
   const handleSearch = useCallback(
     (query: string, category: string) => {
       setSearchQuery(query);
       setSelectedCategory(category);
-
       const filtered = clientSearchPosts(initialPosts, query, category);
       setFilteredPosts(filtered);
       setDisplayedPosts(filtered.slice(0, postsToShow));
@@ -59,28 +40,31 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
     setDisplayedPosts(filteredPosts.slice(0, newPostsToShow));
   };
 
+  const refreshPosts = async () => {
+    const response = await fetch('/api/posts?status=published'); // Adjust the API endpoint as needed
+    if (response.ok) {
+      const updatedPosts = await response.json();
+      setFilteredPosts(updatedPosts);
+      setDisplayedPosts(updatedPosts.slice(0, postsToShow));
+    }
+  };
+
+  const handleDeletePost = async (slug: string) => {
+    if (confirm("Are you sure you want to delete this blog post?")) {
+      const response = await fetch(`/api/admin/delete-post/${slug}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        alert("Blog post deleted successfully!");
+        refreshPosts(); // Refresh posts after deletion
+      } else {
+        alert("Failed to delete blog post.");
+      }
+    }
+  };
+
   const hasActiveSearch = searchQuery || selectedCategory;
   const hasMorePosts = displayedPosts.length < filteredPosts.length;
-
-  const renderAdminPanel = () => {
-    if (
-      status === "authenticated" &&
-      session?.user &&
-      ["FOUNDER", "COLLABORATOR"].includes((session.user as any)?.role)
-    ) {
-      return (
-        <div className="mt-8 flex flex-col gap-2">
-          <Link href="/admin/create-post" className="btn">
-            Create Post
-          </Link>
-          <Link href="/admin/manage" className="btn">
-            Manage Posts
-          </Link>
-        </div>
-      );
-    }
-    return null; // Hidden for guests and MEMBER users
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
