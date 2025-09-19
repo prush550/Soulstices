@@ -1,3 +1,4 @@
+import { getPostBySlug, getPublishedPosts } from "@/lib/database-blog"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -7,46 +8,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { SoulsticesLogo } from "@/components/soulstices-logo"
 import { BlogSidebar } from "@/components/blog-sidebar"
 import { CommentsSection } from "@/components/comments-section"
-import type { BlogPost } from "@/lib/types"
 
 interface BlogPostPageProps {
   params: Promise<{
     slug: string
   }>
-}
-
-async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/posts/${slug}`, {
-      cache: 'no-store',
-    });
-    
-    if (!response.ok) {
-      return null;
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching post:', error);
-    return null;
-  }
-}
-
-async function getAllPublishedPosts(): Promise<BlogPost[]> {
-  try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/posts`, {
-      cache: 'no-store',
-    });
-    
-    if (!response.ok) {
-      return [];
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching posts:', error);
-    return [];
-  }
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
@@ -59,14 +25,28 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound()
   }
 
+  // Use direct database calls instead of fetch
   const post = await getPostBySlug(slug)
   
   if (!post) {
     notFound()
   }
 
+  // Only show published posts
+  if (post.status !== 'published') {
+    notFound()
+  }
+
+  // Check if post should be published yet using publishDate
+  const now = new Date()
+  const publishDate = new Date(post.publishDate || post.date)
+  
+  if (publishDate > now) {
+    notFound()
+  }
+
   // Get all published posts for sidebar and related posts
-  const allPosts = await getAllPublishedPosts()
+  const allPosts = await getPublishedPosts()
 
   const relatedPosts = allPosts
     .filter((p) => p.category === post.category && p.slug !== post.slug)
@@ -254,7 +234,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
 
 // Generate static params for build optimization
 export async function generateStaticParams() {
-  const posts = await getAllPublishedPosts()
+  const posts = await getPublishedPosts()
   
   return posts.map((post) => ({
     slug: post.slug,
