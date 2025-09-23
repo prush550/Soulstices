@@ -49,7 +49,7 @@ export default function SharedHeader({ variant = "default" }: SharedHeaderProps)
 
   const headerBgClass = variant === "blog"
     ? "bg-white shadow-sm border-b"
-    : "border-b border-slate-800 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60";
+    : "bg-slate-900 border-b border-slate-800";
 
   const logoTextClass = variant === "blog"
     ? "text-xl font-bold text-gray-900"
