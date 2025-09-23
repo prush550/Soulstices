@@ -8,6 +8,7 @@ import BlogSearchResults from "@/components/blog-search-results";
 import { BlogSidebar } from "@/components/blog-sidebar";
 import { Button } from "@/components/ui/button";
 import { SoulsticesLogo } from "@/components/soulstices-logo";
+import AdminButton from "@/components/AdminButton";
 import Link from "next/link";
 
 interface BlogPageClientProps {
@@ -142,7 +143,7 @@ export default function BlogPageClient({ initialPosts, initialCategories }: Blog
               </div>
             )}
 
-            {renderAdminPanel()}
+            <AdminButton />
           </div>
 
           <div className="lg:w-80">
