@@ -5,7 +5,6 @@ import Image from "next/image"
 import { Calendar, User, ArrowLeft } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { SoulsticesLogo } from "@/components/soulstices-logo"
 import { BlogSidebar } from "@/components/blog-sidebar"
 import { CommentsSection } from "@/components/comments-section"
 
@@ -54,32 +53,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
-      {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
-        <div className="container mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <SoulsticesLogo size={32} />
-            <span className="text-xl font-bold bg-gradient-to-r from-teal-400 to-purple-400 bg-clip-text text-transparent">
-              Soulstices
-            </span>
-          </Link>
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/#services" className="text-slate-300 hover:text-teal-400 transition-colors">
-              Services
-            </Link>
-            <Link href="/about" className="text-slate-300 hover:text-teal-400 transition-colors">
-              About
-            </Link>
-            <Link href="/contact" className="text-slate-300 hover:text-teal-400 transition-colors">
-              Contact
-            </Link>
-            <Link href="/blog" className="text-teal-400 font-medium">
-              Blog
-            </Link>
-          </nav>
-        </div>
-      </header>
-
+      {/* Header is now handled by layout.tsx */}
+      
       <div className="container mx-auto px-4 lg:px-6 py-12">
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Main Content */}

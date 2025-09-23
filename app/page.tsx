@@ -2,15 +2,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Brain, Users, ArrowRight, Mail, Phone } from "lucide-react"
 import Link from "next/link"
 import { SoulsticesLogo } from "@/components/soulstices-logo"
-import Navbar from "./navbar"
 import { HeroButtons } from "./components/hero-buttons"
 import { CTASection } from "./components/cta-section"
 
 export default function SoulsticesLanding() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
-      <Navbar /> 
-            
+                  
       {/* Hero Section */}
       <section className="py-20 lg:py-32">
         <div className="container mx-auto px-4 lg:px-6">
@@ -276,7 +274,7 @@ export default function SoulsticesLanding() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-teal-400 transition-colors">
+                  <Link href="/about" className="hover:text-teal-400 transition-colors">
                     Our Team
                   </Link>
                 </li>

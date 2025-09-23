@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,14 +20,14 @@ export default function LoginPage() {
       const result = await signIn("credentials", {
         email,
         password,
-        redirect: false, // Don't redirect automatically
+        redirect: false,
       });
 
       if (result?.error) {
         setError(result.error);
       } else if (result?.ok) {
-        router.push("/"); // Redirect to homepage after successful login
-        router.refresh(); // Force a refresh to update the session
+        router.push("/");
+        router.refresh();
       }
     } catch (err) {
       setError("Something went wrong");
@@ -36,39 +37,79 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md"
-      >
-        <h1 className="text-2xl font-bold mb-6">Login</h1>
-        {error && (
-          <p className="bg-red-500 text-white p-2 rounded mb-4">{error}</p>
-        )}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-3 mb-4 rounded bg-slate-700 focus:outline-none"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-6 rounded bg-slate-700 focus:outline-none"
-          required
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-teal-500 hover:bg-teal-600 text-white py-3 rounded font-semibold transition disabled:opacity-50"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+    <div className="min-h-screen bg-slate-900 text-white">
+      {/* Main content */}
+      <div className="flex items-center justify-center min-h-screen py-12 px-4">
+        <div className="w-full max-w-md">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-700"
+          >
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
+              <p className="text-slate-400">Sign in to your Soulstices account</p>
+            </div>
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg mb-6">
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-white placeholder-slate-400"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-3 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-white placeholder-slate-400"
+                  required
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-6 bg-teal-500 hover:bg-teal-600 disabled:bg-teal-500/50 text-white py-3 px-4 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 focus:ring-offset-slate-800"
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+
+            <div className="mt-6 text-center">
+              <p className="text-slate-400">
+                Don't have an account?{" "}
+                <a 
+                  href="/signup" 
+                  className="text-teal-400 hover:text-teal-300 font-medium transition-colors"
+                >
+                  Sign up here
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
