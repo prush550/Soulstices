@@ -20,7 +20,6 @@ export default function CreatePostPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Check if user is authorized (FOUNDER role)
   if (status === "loading") {
     return <div className="p-8 text-white bg-slate-900 min-h-screen">Loading...</div>;
   }
@@ -61,7 +60,6 @@ export default function CreatePostPage() {
 
       if (res.ok) {
         setMessage("✅ Post created successfully!");
-        // Reset form
         setForm({
           title: "",
           excerpt: "",
